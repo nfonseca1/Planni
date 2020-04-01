@@ -2,6 +2,10 @@ var express = require("express");
 var session = require("express-session");
 var MemcachedStore = require('connect-memcached')(session);
 var AWS = require("aws-sdk");
+var uuid = require("uuid");
+var bcrypt = require("bcrypt");
+
+const bcryptSR = 10;
 
 AWS.config = {
     region: "us-east-1"
@@ -30,7 +34,7 @@ app.use(
 );
 
 app.get("/", function(req, res){
-	res.render("login.ejs");
+	res.render("login.ejs", {loginMsg: "", errorMsg: ""});
 });
 
 function ValidateRegistration(inputs){
@@ -83,20 +87,39 @@ app.post("/", function(req, res){
     // Reformat names, and set username to null if it has no value
     var reformattedBody = FormatRegistration(req.body);
 
-    // DynamoDB getItem params
-    var getParams = {
-        Key: {
-            "Email": {
+    // Hash password
+    bcrypt.hash(reformattedBody.password, bcryptSR, function(err, hash){
+        if (err) {
+            console.log(err);
+            res.send("Error registering user");
+        }
+        if (hash) {
+            reformattedBody.password = hash;
+            RegisterUser(reformattedBody, res); // When password hashes, complete registration process
+        }
+    })
+});
+
+function RegisterUser(reformattedBody, res){
+    // DynamoDB query params
+    var queryParams = {
+        ExpressionAttributeValues: {
+            ":v1": {
                 S: reformattedBody.email
             }
         },
+        KeyConditionExpression: "Email = :v1",
         TableName: "Planni-Users",
+        IndexName: "Email-index",
         ReturnConsumedCapacity: "TOTAL"
     };
 
     // DynamoDB putItem params
     var putParams = {
         Item: {
+            "UUID": {
+                S: uuid.v1()
+            },
             "Firstname": {
                 S: reformattedBody.firstname
             },
@@ -119,17 +142,17 @@ app.post("/", function(req, res){
     else putParams.Item.Username.S = reformattedBody.username;
 
     // Setup DynamoDB requests
-    var getItem = dynamoDB.getItem(getParams); // Check to see if email exists
+    var query = dynamoDB.query(queryParams); // Check to see if email exists
     var putItem = dynamoDB.putItem(putParams); // Create a new user in our database with provided info
 
-    getItem.send();
-    getItem.on('complete', function(result){
+    query.send();
+    query.on('complete', function(result){
         if (result.error) { // An error getting the item
             console.log(result.error);
             res.send("Error checking user");
         }
-        else if ("Item" in result.data) { // If the data return a user (obj not empty), re-render and notify
-            res.render("login.ejs", {errorMsg: "Account is already associated with email"});
+        else if (result.data.Items.length != 0) { // If the data return a user (obj not empty), re-render and notify
+            res.render("login.ejs", {loginMsg: "", errorMsg: "Account is already associated with email"});
         }
         else putItem.send(); // Send put item request if no email is found
     });
@@ -143,40 +166,45 @@ app.post("/", function(req, res){
             console.log(result.data);
         }
     });
-});
-
-
+}
 
 app.post("/home", function(req, res){
-
-    var getParams = {
+    // DynamoDB query params
+    var queryParams = {
         ExpressionAttributeValues: {
             ":v1": {
                 S: req.body.username
-            },
-            ":v2" : {
-                S: req.body.password
             }
         },
-        KeyConditionExpression: "Username = :v1 AND Password = :v2",
+        KeyConditionExpression: "Username = :v1",
         TableName: "Planni-Users",
         IndexName: "Username-index",
         ReturnConsumedCapacity: "TOTAL"
     };
     var emailRegex = new RegExp(/[\S]{1,}@[\S]{1,}/);
-    if (emailRegex.test(req.body.username) == true) {
-        getParams.KeyConditionExpression = "Email = :v1 AND Password = :v2";
-        delete getParams.IndexName;
+    if (emailRegex.test(req.body.username) == true) { // If logging in with an email, change db parameters
+        queryParams.KeyConditionExpression = "Email = :v1";
+        queryParams.IndexName = "Email-index";
     }
 
-    console.log(getParams);
-    var query = dynamoDB.query(getParams);
+    var query = dynamoDB.query(queryParams);
     query.on("complete", function(result){
         if (result.error) {
             console.log(result.error);
             res.send("Server could not retrieve user");
+        } else if (result.data.Items.length == 0){
+            res.render("login.ejs", {loginMsg: "Email/Username and Password combination is incorrect", errorMsg: ""})
         } else {
-            console.log(result.data);
+            bcrypt.compare(req.body.password, result.data.Items[0].Password.S, function(err, hashResult) { // Check hashed password for match
+                if (err) {
+                    console.log(err);
+                    res.send("Error processing data");
+                } else if (hashResult == false) {
+                    res.render("login.ejs", {loginMsg: "Email/Username and Password combination is incorrect", errorMsg: ""})
+                } else {
+                    console.log(result.data);
+                }
+            })
         }
     })
     query.send();

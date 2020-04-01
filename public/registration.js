@@ -1,4 +1,4 @@
-var inputs = document.querySelectorAll("input");
+var inputs = document.querySelectorAll("#registerForm input");
 // If javascript is enabled, validation is all done with javascript
 inputs.forEach(function(item){
     item.removeAttribute("required");
