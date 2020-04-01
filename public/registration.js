@@ -5,6 +5,9 @@ inputs.forEach(function(item){
     item.removeAttribute("pattern");
 })
 
+var registerBtn = document.querySelector("#registerBtn");
+registerBtn.setAttribute("type", "button");
+
 var form = document.querySelector("#registerForm");
 var firstnameMsg = document.querySelector("#firstnameMsg");
 var lastnameMsg = document.querySelector("#lastnameMsg");
@@ -12,7 +15,6 @@ var emailMsg = document.querySelector("#emailMsg");
 var usernameMsg = document.querySelector("#usernameMsg");
 var passwordMsg = document.querySelector("#passwordMsg");
 var confirmPasswordMsg = document.querySelector("#confirmPasswordMsg");
-var registerBtn = document.querySelector("#registerBtn");
 
 registerBtn.addEventListener("click", Validate);
 
@@ -27,8 +29,8 @@ function Validate(){
     var password = document.querySelector("#password");
     var confirmPassword = document.querySelector("#confirmPassword");
 
-    var regex = [new RegExp(/^[a-zA-Z.,'-]{2,}$/),
-        new RegExp(/^[a-zA-Z.,'-]{2,}$/),
+    var regex = [new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
+        new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
         new RegExp(/^([\S]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/),
         new RegExp(/^[a-zA-Z0-9\-_!?+#$%&*]{4,30}$/),
         new RegExp(/^[\S]{7,35}$/),
@@ -59,12 +61,16 @@ function Validate(){
     if (!regex[4].test(password.value)) {
         if (password.value.length < 7) passwordMsg.textContent = "Password must be at least 7 characters";
         else if (password.value.length > 35) passwordMsg.textContent = "Password cannot be greater than 35 characters";
+        else passwordMsg.textContent = "Password cannot contain whitespace";
         noErrors = false;
     }
     if (confirmPassword.value != password.value) {
         confirmPasswordMsg.textContent = "Passwords do not match";
+        noErrors = false;
     }
-    if (noErrors) form.submit();
+    if (noErrors) {
+        form.submit();
+    }
 };
 
 function ResetErrorMessages(){
