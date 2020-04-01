@@ -95,12 +95,12 @@ app.post("/", function(req, res){
         }
         if (hash) {
             reformattedBody.password = hash;
-            RegisterUser(reformattedBody, res); // When password hashes, complete registration process
+            RegisterUser(reformattedBody, req, res) // When password hashes, complete registration process
         }
     })
 });
 
-function RegisterUser(reformattedBody, res){
+function RegisterUser(reformattedBody, req, res){
     // DynamoDB query params
     var queryParams = {
         ExpressionAttributeValues: {
@@ -114,11 +114,13 @@ function RegisterUser(reformattedBody, res){
         ReturnConsumedCapacity: "TOTAL"
     };
 
+    reformattedBody.uuid = uuid.v1();
+
     // DynamoDB putItem params
     var putParams = {
         Item: {
             "UUID": {
-                S: uuid.v1()
+                S: reformattedBody.uuid
             },
             "Firstname": {
                 S: reformattedBody.firstname
@@ -163,9 +165,121 @@ function RegisterUser(reformattedBody, res){
             res.send("Error adding user");
         }
         else {
-            console.log(result.data);
+            req.session.UUID = reformattedBody.uuid;
+            CreateDefaultBoards(req);
         }
     });
+}
+
+function CreateDefaultBoards(req){
+    var allBoard = {
+        UserId: req.session.UUID,
+        UUID: uuid.v1(),
+        Name: "ALL",
+        Style: "Default",
+        SortingOrder: "LastUpdated",
+        IsLocked: false
+    }
+
+    var homeBoard = {
+        UserId: req.session.UUID,
+        UUID: uuid.v1(),
+        Name: "Home Board",
+        Style: "Default",
+        SortingOrder: "LastUpdated",
+        IsLocked: false
+    }
+
+    var writeParams = {
+        RequestItems: {
+            "Planni-Boards": [
+                {
+                    PutRequest: {
+                        Item: {
+                            "UserId": {
+                                S: allBoard.UserId
+                            },
+                            "Name": {
+                                S: allBoard.Name
+                            },
+                            "UUID": {
+                                S: allBoard.UUID
+                            },
+                            "Style": {
+                                S: allBoard.Style
+                            },
+                            "SortingOrder": {
+                                S: allBoard.SortingOrder
+                            },
+                            "IsLocked": {
+                                BOOL: allBoard.IsLocked
+                            }
+                        }
+                    },
+                    PutRequest: {
+                        Item: {
+                            "UserId": {
+                                S: homeBoard.UserId
+                            },
+                            "Name": {
+                                S: homeBoard.Name
+                            },
+                            "UUID": {
+                                S: homeBoard.UUID
+                            },
+                            "Style": {
+                                S: homeBoard.Style
+                            },
+                            "SortingOrder": {
+                                S: homeBoard.SortingOrder
+                            },
+                            "IsLocked": {
+                                BOOL: homeBoard.IsLocked
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+
+    var updateParams = {
+        UpdateExpression: "SET DefaultBoardId = :id",
+        ExpressionAttributeValues: {
+            ":id": {
+                S: homeBoard.UUID
+            }
+        },
+        Key: {
+            "UUID": {
+                S: req.session.UUID
+            }
+        },
+        TableName: "Planni-Users",
+        ReturnValues: "ALL_NEW"
+    }
+
+    var WriteItem = dynamoDB.batchWriteItem(writeParams);
+    var UpdateItem = dynamoDB.updateItem(updateParams);
+
+    WriteItem.on('complete', function(result){
+        if (result.error) console.log(result.error);
+        else {
+            req.session.boards = [allBoard, homeBoard];
+            UpdateItem.send();
+        }
+    })
+
+    UpdateItem.on('complete', function(result){
+        if (result.error) console.log(result.error);
+        else {
+            console.log(result.data);
+            req.session.user = result.data.Attributes;
+            console.log(req.session);
+        }
+    })
+
+    WriteItem.send();
 }
 
 app.post("/home", function(req, res){
