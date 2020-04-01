@@ -6,15 +6,18 @@
 <body>
 
 <h3>Login</h3>
-<form action="/home" method="POST">
+<form action="/home" method="POST" id="loginForm">
 	<label>Username or Email</label>
-	<input type="text" name="username">
+	<input type="text" name="username" required>
 	<br>
 	<label>Password</label>
-	<input type="password" name="password">
+	<input type="password" name="password" required>
 	<br>
 	<button type="submit">Login</button>
 </form>
+
+<script type="text/javascript" src="login.js">
+</script>
 
 <br>
 <br>

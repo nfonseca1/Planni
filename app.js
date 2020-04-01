@@ -124,31 +124,62 @@ app.post("/", function(req, res){
 
     getItem.send();
     getItem.on('complete', function(result){
-        if (result.err) { // An error getting the item
-            console.log(result.err);
+        if (result.error) { // An error getting the item
+            console.log(result.error);
             res.send("Error checking user");
         }
         else if ("Item" in result.data) { // If the data return a user (obj not empty), re-render and notify
-            console.log(result.data);
             res.render("login.ejs", {errorMsg: "Account is already associated with email"});
         }
-        else putItem.send();
+        else putItem.send(); // Send put item request if no email is found
     });
 
     putItem.on('complete', function(result){
-        if (result.err) {
-            console.log(result.err);
+        if (result.error) {
+            console.log(result.error);
             res.send("Error adding user");
         }
         else {
-            console.log("put data");
             console.log(result.data);
         }
     });
 });
 
+
+
 app.post("/home", function(req, res){
-    console.log(req.params);
+
+    var getParams = {
+        ExpressionAttributeValues: {
+            ":v1": {
+                S: req.body.username
+            },
+            ":v2" : {
+                S: req.body.password
+            }
+        },
+        KeyConditionExpression: "Username = :v1 AND Password = :v2",
+        TableName: "Planni-Users",
+        IndexName: "Username-index",
+        ReturnConsumedCapacity: "TOTAL"
+    };
+    var emailRegex = new RegExp(/[\S]{1,}@[\S]{1,}/);
+    if (emailRegex.test(req.body.username) == true) {
+        getParams.KeyConditionExpression = "Email = :v1 AND Password = :v2";
+        delete getParams.IndexName;
+    }
+
+    console.log(getParams);
+    var query = dynamoDB.query(getParams);
+    query.on("complete", function(result){
+        if (result.error) {
+            console.log(result.error);
+            res.send("Server could not retrieve user");
+        } else {
+            console.log(result.data);
+        }
+    })
+    query.send();
 })
 
 app.listen(3000, function(){
