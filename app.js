@@ -36,10 +36,16 @@ app.use(
   })
 );
 
+var middleware = function(req, res, next){
+    if (!("user" in req.session)) res.redirect("/");
+    else next();
+};
+
 app.get("/", function(req, res){
 	res.render("login.ejs", {loginMsg: "", errorMsg: ""});
 });
 
+// Registering
 app.post("/", function(req, res){
     // Server side validation. If failed, re-render and notify
     if (Validation.ValidateRegistration(req.body) == false){
@@ -57,11 +63,15 @@ app.post("/", function(req, res){
         }
         if (hash) {
             reformattedBody.password = hash;
-            Registration.RegisterUser(reformattedBody, req, res) // When password hashes, complete registration process
+            // When password hashes, complete registration process
+            Registration.RegisterUser(reformattedBody, req, res, function(){
+                res.redirect("/home");
+            })
         }
     })
 });
 
+// Logging In
 app.post("/home", function(req, res){
     // DynamoDB query params
     var queryParams = {
@@ -82,6 +92,7 @@ app.post("/home", function(req, res){
     }
 
     var query = dynamoDB.query(queryParams);
+
     query.on("complete", function(result){
         if (result.error) {
             console.log(result.error);
@@ -96,12 +107,41 @@ app.post("/home", function(req, res){
                 } else if (hashResult == false) {
                     res.render("login.ejs", {loginMsg: "Email/Username and Password combination is incorrect", errorMsg: ""})
                 } else {
-                    console.log(result.data);
+                    var getParams = {
+                        Key: {
+                            "UUID": {
+                                S: result.data.Items[0].UUID.S
+                            }
+                        },
+                        TableName: "Planni-Users"
+                    };
+                    var getItem = dynamoDB.getItem(getParams);
+                    getItem.on('complete', function(result){
+                        if (result.error) {
+                            console.log(result.error);
+                            res.send("Server could not retrieve user");
+                        } else {
+                            var item = result.data.Item;
+                            req.session.user = {
+                                uuid: item.UUID.S,
+                                email: item.Email.S,
+                                firstname: item.Firstname.S,
+                                lastname: item.Lastname.S,
+                                defaultBoardId: item.DefaultBoardId.S
+                            }
+                            res.redirect("/home");
+                        }
+                    });
+                    getItem.send();
                 }
             })
         }
     })
     query.send();
+});
+
+app.get("/home", middleware, function(req, res){
+    res.send("hello");
 })
 
 app.listen(3000, function(){

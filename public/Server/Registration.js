@@ -8,7 +8,7 @@ var uuid = require("uuid");
 
 var exportsObj = {}
 
-exportsObj.RegisterUser = function (reformattedBody, req, res){
+exportsObj.RegisterUser = function (reformattedBody, req, res, callback){
     // DynamoDB query params
     var queryParams = {
         ExpressionAttributeValues: {
@@ -73,14 +73,17 @@ exportsObj.RegisterUser = function (reformattedBody, req, res){
             res.send("Error adding user");
         }
         else {
-            req.session.UUID = reformattedBody.uuid;
-            exportsObj.CreateDefaultBoards(req);
+            req.session.user = {
+                uuid: reformattedBody.uuid
+            };
+            exportsObj.CreateDefaultBoards(req, res);
+            callback();
         }
     });
 };
-exportsObj.CreateDefaultBoards = function (req){
+exportsObj.CreateDefaultBoards = function (req, res){
     var allBoard = {
-        UserId: req.session.UUID,
+        UserId: req.session.user.uuid,
         UUID: uuid.v1(),
         Name: "ALL",
         Style: "Default",
@@ -89,7 +92,7 @@ exportsObj.CreateDefaultBoards = function (req){
     };
 
     var homeBoard = {
-        UserId: req.session.UUID,
+        UserId: req.session.user.uuid,
         UUID: uuid.v1(),
         Name: "Home Board",
         Style: "Default",
@@ -159,7 +162,7 @@ exportsObj.CreateDefaultBoards = function (req){
         },
         Key: {
             "UUID": {
-                S: req.session.UUID
+                S: req.session.user.uuid
             }
         },
         TableName: "Planni-Users",
@@ -181,7 +184,10 @@ exportsObj.CreateDefaultBoards = function (req){
         if (result.error) console.log(result.error);
         else {
             console.log(result.data);
-            req.session.user = result.data.Attributes;
+            req.session.user.email = result.data.Attributes.Email;
+            req.session.user.firstname = result.data.Attributes.Firstname;
+            req.session.user.lastname = result.data.Attributes.Lastname;
+            req.session.user.defaultBoardId = result.data.Attributes.DefaultBoardId;
             console.log(req.session);
         }
     });
