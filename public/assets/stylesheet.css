@@ -1,8 +1,9 @@
 body {
 	background-color: #f0f0f0;
-	width: 99.4vw;
-	height: 99.4vh;
+	width: 100vw;
+	height: 100vh;
 	margin: 0;
+	overflow: hidden;
 }
 
 .notes-view-container {
@@ -79,4 +80,68 @@ body {
 	background-color: #decdba;
 	border: 1px solid #b8aa9a;
 	border-radius: 1vh;
+}
+
+.note-background {
+	position: absolute;
+	width: 100vw;
+	height: 100vh;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,.8);
+}
+
+.new-note {
+	position: absolute;
+	width: 39vw;
+	height: 64vh;
+	top: 26vh;
+	left: 30.5vw;
+	background-color: #f0f0f0;
+}
+
+.note-top-bar {
+	position: absolute;
+	width: 39vw;
+	height: 4vh;
+	top: 18vh;
+	left: 30.5vw;
+	background-color: #f0f0f0;
+}
+
+.note-left-bar {
+	position: absolute;
+	width: 2.5vw;
+	height: 64vh;
+	top: 26vh;
+	left: 26vw;
+	background-color: #f0f0f0;
+}
+
+.note-title {
+	margin: 2% 3%;
+	width: 95%;
+	height: 8%;
+	border: none;
+	box-shadow: none;
+	background-color: transparent;
+	border-bottom: 1px solid gray;
+}
+
+.note-title:focus {
+	outline: none;
+}
+
+.note-body {
+	border: none;
+	margin: 3%;
+	width: 94%;
+	word-wrap: break-word;
+}
+
+.note-body {
+	outline: none;
+}
+
+.bullet-list-area {
 }

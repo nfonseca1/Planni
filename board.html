@@ -3,7 +3,7 @@
 <head>
     <title>Planni - Notes</title>
 
-    <link rel="stylesheet" type="text/css" href="assets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="./public/assets/stylesheet.css">
 </head>
 <body>
 
@@ -15,23 +15,14 @@
         <div class="board-list-container">
             <div class="board-list-label">Boards</div>
             <div class="board-list">
-                <% boards.forEach(function(board){ %>
-                    <div class="board-list-item" id="<%=board.uuid%>">
-                        <%=board.Name%>
-                    </div>
-                <% })%>
+
             </div>
         </div>
     </div>
     <div class="center-view">
         <div class="board">
             <h2>
-                <% for(var i = 0; i < boards.length; i++){%>
-                    <% if (boards[i].UUID == homeBoardId) {%>
-                    <%= boards[i].Name %>
-                    <% break; %>
-                    <% } %>
-                <% } %>
+                Home Board
             </h2>
             <button class="create-note">New Note</button>
             <div class="board-notes-container">
@@ -41,6 +32,6 @@
     </div>
 </div>
 
-<script type="text/javascript" src="createNote.js"></script>
+<script type="text/javascript" src="./public/createNote.js"></script>
 </body>
 </html>

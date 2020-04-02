@@ -177,7 +177,7 @@ app.get("/home", middleware, function(req, res){
                         IsLocked: item.IsLocked.S
                     })
                 })
-                res.render("notesView.ejs", {boards: req.session.boards});
+                res.render("notesView.ejs", {boards: req.session.boards, homeBoardId: req.session.user.defaultBoardId});
             }
         })
         query.send();
