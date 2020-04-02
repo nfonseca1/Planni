@@ -126,6 +126,8 @@ exportsObj.CreateDefaultBoards = function (req, res){
                             }
                         }
                     },
+                },
+                {
                     PutRequest: {
                         Item: {
                             "UserId": {

@@ -15,7 +15,11 @@
         <div class="board-list-container">
             <div class="board-list-label">Boards</div>
             <div class="board-list">
-                <div class="board-list-item"></div>
+                <% boards.forEach(function(board){ %>
+                    <div class="board-list-item" id="<%=board.uuid%>">
+                        <%=board.Name%>
+                    </div>
+                <% })%>
             </div>
         </div>
     </div>

@@ -141,7 +141,47 @@ app.post("/home", function(req, res){
 });
 
 app.get("/home", middleware, function(req, res){
-    res.send("hello");
+    if ("boards" in req.session) res.render("notesView.ejs", {boards: req.session.boards});
+    else {
+        var queryParams = {
+            ExpressionAttributeValues: {
+                ":v1": {
+                    S: req.session.user.uuid
+                },
+                ":v2": {
+                    S: "0"
+                }
+            },
+            ExpressionAttributeNames: {
+                "#N": "Name"
+            },
+            KeyConditionExpression: "UserId = :v1 AND #N >= :v2",
+            TableName: "Planni-Boards",
+            ReturnConsumedCapacity: "TOTAL"
+        };
+
+        var query = dynamoDB.query(queryParams);
+        query.on("complete", function(result){
+            if (result.error) {
+                console.log(result.error);
+                res.send("Error retrieving boards");
+            } else {
+                req.session.boards = [];
+                result.data.Items.forEach(function(item){
+                    req.session.boards.push({
+                        UserId: item.UserId.S,
+                        UUID: item.UUID.S,
+                        Name: item.Name.S,
+                        Style: item.Style.S,
+                        SortingOrder: item.SortingOrder.S,
+                        IsLocked: item.IsLocked.S
+                    })
+                })
+                res.render("notesView.ejs", {boards: req.session.boards});
+            }
+        })
+        query.send();
+    }
 })
 
 app.listen(3000, function(){

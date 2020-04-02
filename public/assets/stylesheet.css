@@ -56,6 +56,11 @@ body {
 	margin: 5%;
 	background-color: #decdba;
 	border-radius: 1vh;
+	font-size: 2vh;
+	text-align: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .center-view {
