@@ -29,18 +29,8 @@
     <div class="center-view">
         <div class="calendar">
             <h2>
-                <%= month.Month %>
+                Month
             </h2>
-            <div class="calendar-table">
-                <% for (var x = 0; x < 5; x++) {%>
-                <div class="calendar-row">
-                    <% for (var y = 0; y < 7; y++) {%>
-                    <div class="calendar-cell"><%= dates[(7*x)+y].Date %></div>
-                        <%= dates[(7*x)+y].UUID %>
-                    </div>
-                    <% } %>
-                </div>
-                <% } %>
                 <div class="calendar-row">
                     <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
                 </div>

@@ -131,7 +131,8 @@ app.post("/home", function(req, res){
                                 email: item.Email.S,
                                 firstname: item.Firstname.S,
                                 lastname: item.Lastname.S,
-                                defaultBoardId: item.DefaultBoardId.S
+                                defaultBoardId: item.DefaultBoardId.S,
+                                defaultFilterId: item.DefaultFilterId.S
                             }
                             res.redirect("/home");
                         }
@@ -191,8 +192,92 @@ app.get("/home", middleware, function(req, res){
 app.get("/planner", middleware, function(req, res){
     var dateObj = new Date();
     var year = dateObj.getFullYear();
-    var month = months[dateObj.getMonth()]
-    var cal = new calendar.Calendar();
+
+    var queryMonthsParams = {
+        ExpressionAttributeNames: {
+            "#F": "FilterId",
+            "#Y": "Year"
+        },
+        ExpressionAttributeValues: {
+            ":v1": {
+                S: req.session.user.defaultFilterId
+            },
+            ":v2": {
+                S: year.toString()
+            }
+        },
+        KeyConditionExpression: "#F = :v1 AND #Y = :v2",
+        TableName: "Planni-PlannerMonths",
+        IndexName: "FilterId-Year-index",
+        ReturnConsumedCapacity: "TOTAL"
+    }
+    var queryMonths = dynamoDB.query(queryMonthsParams);
+    queryMonths.on("complete", function(result){
+        if (result.error) {
+            console.log(result.error);
+            res.send("Error retrieving months");
+        } else if (result.data.Items.length > 0){
+            req.session.months = [];
+            result.data.Items.forEach(function(item){
+                var itemObj = {
+                    UserId: item.UserId.S,
+                    UUID: item.UUID.S,
+                    Month: item.Month.S,
+                    Year: item.Year.S,
+                    FilterId: item.FilterId.S
+                }
+                if (item.MonthlyTasks) itemObj.MonthlyTasks = item.MonthlyTasks.S;
+                req.session.months.push(itemObj);
+            })
+            console.log(req.session);
+            res.render("plannerView.ejs", {filters: req.session.filters});
+        }
+        else res.render("plannerView.ejs", {filters: req.session.filters});
+    })
+
+    if ("filters" in req.session) {
+        queryMonths.send();
+    }
+    else {
+        var queryFiltersParams = {
+            ExpressionAttributeValues: {
+                ":v1": {
+                    S: req.session.user.uuid
+                },
+                ":v2": {
+                    S: "0"
+                }
+            },
+            ExpressionAttributeNames: {
+                "#N": "Name"
+            },
+            KeyConditionExpression: "UserId = :v1 AND #N >= :v2",
+            TableName: "Planni-PlannerFilters",
+            ReturnConsumedCapacity: "TOTAL"
+        };
+
+        var queryFilters = dynamoDB.query(queryFiltersParams);
+        queryFilters.on("complete", function(result){
+            if (result.error) {
+                console.log(result.error);
+                res.send("Error retrieving filters");
+            } else {
+                req.session.filters = [];
+                result.data.Items.forEach(function(item){
+                    req.session.filters.push({
+                        UserId: item.UserId.S,
+                        UUID: item.UUID.S,
+                        Name: item.Name.S,
+                        Style: item.Style.S,
+                        IsLocked: item.IsLocked.S
+                    })
+                })
+                queryMonths.send();
+            }
+        })
+
+        queryFilters.send();
+    }
 })
 
 
