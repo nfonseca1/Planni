@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Planni - Planner</title>
+
+    <link rel="stylesheet" type="text/css" href="assets/stylesheet.css">
+</head>
+<body>
+
+<div class="notes-view-container">
+    <div class="left-side-pane">
+        <div class="switch-view-container">
+            <form action="/planner" method="get">
+                <button class="switch-view-btn">Notes</button>
+            </form>
+        </div>
+        <div class="divider"></div>
+        <div class="board-list-container">
+            <div class="board-list-label">Boards</div>
+            <div class="board-list">
+                <% filters.forEach(function(filter){ %>
+                <div class="board-list-item" id="<%=filter.uuid%>">
+                    <%=filter.Name%>
+                </div>
+                <% })%>
+            </div>
+        </div>
+    </div>
+    <div class="center-view">
+        <div class="calendar">
+            <h2>
+                <%= month.Month %>
+            </h2>
+            <div class="calendar-table">
+                <% for (var x = 0; x < 5; x++) {%>
+                <div class="calendar-row">
+                    <% for (var y = 0; y < 7; y++) {%>
+                    <div class="calendar-cell"><%= dates[(7*x)+y].Date %></div>
+                        <%= dates[(7*x)+y].UUID %>
+                    </div>
+                    <% } %>
+                </div>
+                <% } %>
+                <div class="calendar-row">
+                    <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
+                </div>
+                <div class="calendar-row">
+                    <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
+                </div>
+                <div class="calendar-row">
+                    <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
+                </div>
+                <div class="calendar-row">
+                    <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
+                </div>
+                <div class="calendar-row">
+                    <div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div><div class="calendar-cell"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

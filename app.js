@@ -4,11 +4,15 @@ var MemcachedStore = require('connect-memcached')(session);
 var AWS = require("aws-sdk");
 var uuid = require("uuid");
 var bcrypt = require("bcrypt");
+var calendar = require("calendar");
 
 var Validation = require("./Public/Server/Validation.js");
 var Registration = require("./Public/Server/Registration.js");
 
 const bcryptSR = 10;
+const months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 AWS.config = {
     region: "us-east-1"
@@ -182,6 +186,18 @@ app.get("/home", middleware, function(req, res){
         })
         query.send();
     }
+})
+
+app.get("/planner", middleware, function(req, res){
+    var dateObj = new Date();
+    var year = dateObj.getFullYear();
+    var month = months[dateObj.getMonth()]
+    var cal = new calendar.Calendar();
+})
+
+
+app.get("/*", function(req, res){
+    res.send("url not found");
 })
 
 app.listen(3000, function(){
