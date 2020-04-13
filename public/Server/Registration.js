@@ -76,90 +76,51 @@ exportsObj.RegisterUser = function (reformattedBody, req, res, callback){
             req.session.user = {
                 uuid: reformattedBody.uuid
             };
-            exportsObj.CreateDefaultBoards(req, res);
+            exportsObj.CreateDefaultBoards(req);
+            exportsObj.CreateDefaultFilter(req);
             callback();
         }
     });
 };
-exportsObj.CreateDefaultBoards = function (req, res){
-    var allBoard = {
+exportsObj.CreateDefaultBoards = function (req){
+    var defaultBoard = {
         UserId: req.session.user.uuid,
         UUID: uuid.v1(),
-        Name: "ALL",
+        Name: "Default",
         Style: "Default",
         SortingOrder: "LastUpdated",
         IsLocked: false
     };
 
-    var homeBoard = {
-        UserId: req.session.user.uuid,
-        UUID: uuid.v1(),
-        Name: "Home Board",
-        Style: "Default",
-        SortingOrder: "LastUpdated",
-        IsLocked: false
-    };
-
-    var writeParams = {
-        RequestItems: {
-            "Planni-Boards": [
-                {
-                    PutRequest: {
-                        Item: {
-                            "UserId": {
-                                S: allBoard.UserId
-                            },
-                            "Name": {
-                                S: allBoard.Name
-                            },
-                            "UUID": {
-                                S: allBoard.UUID
-                            },
-                            "Style": {
-                                S: allBoard.Style
-                            },
-                            "SortingOrder": {
-                                S: allBoard.SortingOrder
-                            },
-                            "IsLocked": {
-                                BOOL: allBoard.IsLocked
-                            }
-                        }
-                    },
-                },
-                {
-                    PutRequest: {
-                        Item: {
-                            "UserId": {
-                                S: homeBoard.UserId
-                            },
-                            "Name": {
-                                S: homeBoard.Name
-                            },
-                            "UUID": {
-                                S: homeBoard.UUID
-                            },
-                            "Style": {
-                                S: homeBoard.Style
-                            },
-                            "SortingOrder": {
-                                S: homeBoard.SortingOrder
-                            },
-                            "IsLocked": {
-                                BOOL: homeBoard.IsLocked
-                            }
-                        }
-                    }
-                }
-            ]
-        }
+    var putParams = {
+        Item: {
+            "UserId": {
+                S: defaultBoard.UserId
+            },
+            "Name": {
+                S: defaultBoard.Name
+            },
+            "UUID": {
+                S: defaultBoard.UUID
+            },
+            "Style": {
+                S: defaultBoard.Style
+            },
+            "SortingOrder": {
+                S: defaultBoard.SortingOrder
+            },
+            "IsLocked": {
+                BOOL: defaultBoard.IsLocked
+            }
+        },
+        TableName: "Planni-Boards"
     }
 
     var updateParams = {
         UpdateExpression: "SET DefaultBoardId = :id",
         ExpressionAttributeValues: {
             ":id": {
-                S: homeBoard.UUID
+                S: defaultBoard.UUID
             }
         },
         Key: {
@@ -171,13 +132,13 @@ exportsObj.CreateDefaultBoards = function (req, res){
         ReturnValues: "ALL_NEW"
     };
 
-    var WriteItem = dynamoDB.batchWriteItem(writeParams);
+    var WriteItem = dynamoDB.putItem(putParams);
     var UpdateItem = dynamoDB.updateItem(updateParams);
 
     WriteItem.on('complete', function(result){
         if (result.error) console.log(result.error);
         else {
-            req.session.boards = [allBoard, homeBoard];
+            req.session.boards = [defaultBoard];
             UpdateItem.send();
         }
     });
@@ -185,16 +146,81 @@ exportsObj.CreateDefaultBoards = function (req, res){
     UpdateItem.on('complete', function(result){
         if (result.error) console.log(result.error);
         else {
-            console.log(result.data);
-            req.session.user.email = result.data.Attributes.Email;
-            req.session.user.firstname = result.data.Attributes.Firstname;
-            req.session.user.lastname = result.data.Attributes.Lastname;
-            req.session.user.defaultBoardId = result.data.Attributes.DefaultBoardId;
-            console.log(req.session);
+            req.session.user.email = result.data.Attributes.Email.S;
+            req.session.user.firstname = result.data.Attributes.Firstname.S;
+            req.session.user.lastname = result.data.Attributes.Lastname.S;
+            req.session.user.defaultBoardId = result.data.Attributes.DefaultBoardId.S;
         }
     });
 
     WriteItem.send();
+}
+
+exportsObj.CreateDefaultFilter = function(req){
+
+    var defaultFilter = {
+        UserId: req.session.user.uuid,
+        Name: "Default",
+        UUID: uuid.v1(),
+        Style: "Default",
+        "IsLocked": false
+    }
+
+    var putParams = {
+        Item: {
+            "UserId": {
+                S: defaultFilter.UserId
+            },
+            "Name": {
+                S: defaultFilter.Name
+            },
+            "UUID": {
+                S: defaultFilter.UUID
+            },
+            "Style": {
+                S: defaultFilter.Style
+            },
+            "IsLocked": {
+                BOOL: defaultFilter.IsLocked
+            }
+        },
+        TableName: "Planni-PlannerFilters"
+    }
+
+    var updateParams = {
+        UpdateExpression: "SET DefaultFilterId = :id",
+        ExpressionAttributeValues: {
+            ":id": {
+                S: defaultFilter.UUID
+            }
+        },
+        Key: {
+            "UUID": {
+                S: req.session.user.uuid
+            }
+        },
+        TableName: "Planni-Users",
+        ReturnValues: "ALL_NEW"
+    };
+
+    var putItem = dynamoDB.putItem(putParams);
+    var updateParams = dynamoDB.updateItem(updateParams);
+    putItem.on("complete", function(result){
+        if (result.error) console.log(result.error);
+        else {
+            req.session.filters = [defaultFilter];
+            updateParams.send();
+        }
+    })
+
+    updateParams.on("complete", function(result){
+        if (result.error) console.log(result.error);
+        else {
+            req.session.user.defaultFilterId = result.data.Attributes.DefaultFilterId.S;
+        }
+    })
+
+    putItem.send();
 }
 
 module.exports = exportsObj;
