@@ -193,6 +193,7 @@ app.get("/planner", middleware, function(req, res){
     var dateObj = new Date();
     var year = dateObj.getFullYear();
 
+    // Setting up months query
     var queryMonthsParams = {
         ExpressionAttributeNames: {
             "#F": "FilterId",
@@ -234,7 +235,7 @@ app.get("/planner", middleware, function(req, res){
         }
         else res.render("plannerView.ejs", {filters: req.session.filters});
     })
-
+    // If filters are in session, query months and render page, else, query filters first
     if ("filters" in req.session) {
         queryMonths.send();
     }

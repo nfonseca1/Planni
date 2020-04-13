@@ -166,6 +166,10 @@ body {
 	margin: 0 5%;
 }
 
+.dates {
+    height: 85%;
+}
+
 .calendar-row {
 	display: inline-block;
 	width: 100%;
@@ -177,4 +181,8 @@ body {
 	border: 1px solid gray;
 	width: 14%;
 	height: 100%;
+}
+
+.inactive-cell {
+    color: gray;
 }
