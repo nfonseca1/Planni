@@ -1,4 +1,5 @@
 var calendarCells = document.querySelectorAll(".calendar-cell");
+var monthName = document.querySelector(".month-name");
 var date = new Date(); // Today's date
 
 var monthIndex, // Index of month 0 - 11 (January - December)
@@ -8,6 +9,7 @@ var monthIndex, // Index of month 0 - 11 (January - December)
 
 determineDateInfo();
 applyDates();
+getMonth();
 
 function determineDateInfo() // Determine the first day of month, last date of month and previous month
 {
@@ -48,4 +50,19 @@ function applyDates() // Loop through calendar cells and apply date number to ap
             nextDates++;
         }
     }
+}
+
+function getMonth() // Send api call to get current month info
+{
+    axios.get("/api/month", {
+        params: {
+            monthIndex: monthIndex,
+            year: date.getFullYear()
+        }
+    })
+        .then(function(response){
+            console.log("retrieved");
+            console.log(response.data);
+            monthName.textContent = response.data[0].Month;
+        })
 }

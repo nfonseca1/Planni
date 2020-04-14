@@ -4,7 +4,11 @@ var MemcachedStore = require('connect-memcached')(session);
 var AWS = require("aws-sdk");
 var uuid = require("uuid");
 var bcrypt = require("bcrypt");
-var calendar = require("calendar");
+var cors = require("cors");
+
+var app = express();
+//var apiRoutes = require("./routes/api");
+//app.use("/api", apiRoutes);
 
 var Validation = require("./Public/Server/Validation.js");
 var Registration = require("./Public/Server/Registration.js");
@@ -17,10 +21,9 @@ const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 AWS.config = {
     region: "us-east-1"
 };
-
 var dynamoDB = new AWS.DynamoDB();
-var app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.static(__dirname +'/public'));
@@ -146,7 +149,7 @@ app.post("/home", function(req, res){
 });
 
 app.get("/home", middleware, function(req, res){
-    if ("boards" in req.session) res.render("notesView.ejs", {boards: req.session.boards});
+    if ("boards" in req.session) res.render("notesView.ejs", {boards: req.session.boards, homeBoardId: req.session.user.defaultBoardId});
     else {
         var queryParams = {
             ExpressionAttributeValues: {
@@ -190,54 +193,9 @@ app.get("/home", middleware, function(req, res){
 })
 
 app.get("/planner", middleware, function(req, res){
-    var dateObj = new Date();
-    var year = dateObj.getFullYear();
-
-    // Setting up months query
-    var queryMonthsParams = {
-        ExpressionAttributeNames: {
-            "#F": "FilterId",
-            "#Y": "Year"
-        },
-        ExpressionAttributeValues: {
-            ":v1": {
-                S: req.session.user.defaultFilterId
-            },
-            ":v2": {
-                S: year.toString()
-            }
-        },
-        KeyConditionExpression: "#F = :v1 AND #Y = :v2",
-        TableName: "Planni-PlannerMonths",
-        IndexName: "FilterId-Year-index",
-        ReturnConsumedCapacity: "TOTAL"
-    }
-    var queryMonths = dynamoDB.query(queryMonthsParams);
-    queryMonths.on("complete", function(result){
-        if (result.error) {
-            console.log(result.error);
-            res.send("Error retrieving months");
-        } else if (result.data.Items.length > 0){
-            req.session.months = [];
-            result.data.Items.forEach(function(item){
-                var itemObj = {
-                    UserId: item.UserId.S,
-                    UUID: item.UUID.S,
-                    Month: item.Month.S,
-                    Year: item.Year.S,
-                    FilterId: item.FilterId.S
-                }
-                if (item.MonthlyTasks) itemObj.MonthlyTasks = item.MonthlyTasks.S;
-                req.session.months.push(itemObj);
-            })
-            console.log(req.session);
-            res.render("plannerView.ejs", {filters: req.session.filters});
-        }
-        else res.render("plannerView.ejs", {filters: req.session.filters});
-    })
     // If filters are in session, query months and render page, else, query filters first
     if ("filters" in req.session) {
-        queryMonths.send();
+        res.render("plannerView.ejs", {filters: req.session.filters});
     }
     else {
         var queryFiltersParams = {
@@ -273,7 +231,7 @@ app.get("/planner", middleware, function(req, res){
                         IsLocked: item.IsLocked.S
                     })
                 })
-                queryMonths.send();
+                res.render("plannerView.ejs", {filters: req.session.filters});
             }
         })
 
@@ -281,8 +239,125 @@ app.get("/planner", middleware, function(req, res){
     }
 })
 
+app.get("/api/month", function(req, res){
+    var month = months[req.query.monthIndex];
+    var year = req.query.year;
 
-app.get("/*", function(req, res){
+    // Setting up months query
+    var queryMonthsParams = {
+        ExpressionAttributeNames: {
+            "#U": "UserId",
+            "#Y": "Year"
+        },
+        ExpressionAttributeValues: {
+            ":v1": {
+                S: req.session.user.uuid
+            },
+            ":v2": {
+                S: year.toString()
+            }
+        },
+        KeyConditionExpression: "#U = :v1 AND #Y = :v2",
+        TableName: "Planni-PlannerMonths",
+        IndexName: "UserId-Year-index",
+        ReturnConsumedCapacity: "TOTAL"
+    }
+    var queryMonths = dynamoDB.query(queryMonthsParams);
+    queryMonths.on("complete", function(result){
+        if (result.error) {
+            console.log(result.error);
+            res.send("Error retrieving months");
+        } else if (result.data.Items.length > 0){
+            var monthsArr = [];
+            req.session.months = [];
+            result.data.Items.forEach(function(item){
+                var itemObj = {
+                    UserId: item.UserId.S,
+                    UUID: item.UUID.S,
+                    Month: item.Month.S,
+                    Year: item.Year.S,
+                    FilterId: item.FilterId.S
+                }
+                if (item.MonthlyTasks) itemObj.MonthlyTasks = item.MonthlyTasks.S;
+                req.session.months.push(itemObj);
+                if (itemObj.Month == month) monthsArr.push(itemObj);
+            })
+            console.log(req.session);
+            if (monthsArr.length > 0) res.send(monthsArr);
+            else createMonth(req, res, month, year);
+        }
+        else createMonth(req, res, month, year);
+    })
+
+    var monthsArr = [];
+    if (req.session.months != undefined){
+        var m = req.session.months;
+        for (var i = 0; i < m.length; i++){
+            if (m[i].Month == month) {
+                monthsArr.push(m[i]);
+            }
+        }
+    }
+
+    if (monthsArr.length == 0) queryMonths.send();
+    else res.send(monthsArr);
+})
+
+function createMonth(req, res, month, year) {
+    var writeParams = {
+        RequestItems: {
+            "Planni-PlannerMonths": []
+        }
+    }
+
+    var monthsArr = [];
+
+    req.session.filters.forEach(function(filter){
+        var id = uuid.v1();
+        monthsArr.push({
+            UserId: req.session.user.uuid,
+            UUID: id,
+            Month: month,
+            Year: year.toString(),
+            FilterId: filter.UUID
+        })
+        writeParams.RequestItems["Planni-PlannerMonths"].push({
+            PutRequest: {
+                Item: {
+                    "UserId": {
+                        S: req.session.user.uuid
+                    },
+                    "UUID": {
+                        S: id
+                    },
+                    "Month": {
+                        S: month
+                    },
+                    "Year": {
+                        S: year.toString()
+                    },
+                    "FilterId": {
+                        S: filter.UUID
+                    }
+                }
+            }
+        })
+    })
+
+    var batchWrite = dynamoDB.batchWriteItem(writeParams);
+    batchWrite.on("complete", function(response){
+        if (response.error) console.log(response.error);
+        else {
+            if (req.session.months == undefined) req.session.months = [];
+            req.session.months.push(monthsArr);
+            res.send(monthsArr);
+        }
+    })
+
+    batchWrite.send();
+}
+
+app.get("*", function(req, res){
     res.send("url not found");
 })
 
