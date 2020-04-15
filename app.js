@@ -278,11 +278,10 @@ app.get("/api/month", function(req, res){
                     Year: item.Year.S,
                     FilterId: item.FilterId.S
                 }
-                if (item.MonthlyTasks) itemObj.MonthlyTasks = item.MonthlyTasks.S;
+                if (item.MonthlyTasks) itemObj.MonthlyTasks = item.MonthlyTasks.SS;
                 req.session.months.push(itemObj);
                 if (itemObj.Month == month) monthsArr.push(itemObj);
             })
-            console.log(req.session);
             if (monthsArr.length > 0) res.send(monthsArr);
             else createMonth(req, res, month, year);
         }
@@ -301,6 +300,48 @@ app.get("/api/month", function(req, res){
 
     if (monthsArr.length == 0) queryMonths.send();
     else res.send(monthsArr);
+})
+
+app.put("/api/month", function(req, res){
+    console.log(req.body.data);
+
+    var updateParams = {
+        ExpressionAttributeNames: {
+            "#T": "MonthlyTasks"
+        },
+        ExpressionAttributeValues: {
+            ":v": {
+                SS: req.body.data.monthlyTasks
+            }
+        },
+        Key: {
+            "UUID": {
+                S: req.body.data.monthId
+            }
+        },
+        ReturnValues: "ALL_NEW",
+        TableName: "Planni-PlannerMonths",
+        UpdateExpression: "SET #T = :v"
+    };
+
+    var updateItem = dynamoDB.updateItem(updateParams);
+    updateItem.on("complete", function(response){
+        if (response.error) {
+            console.log(response.error);
+            res.send(null);
+        }
+        else {
+            var m = req.session.months;
+            for (var i = 0; i < m.length; i++){
+                if (m[i].UUID == req.body.data.monthId){
+                    req.session.months[i].MonthlyTasks = req.body.data.monthlyTasks;
+                    break;
+                }
+            }
+            res.send(response.data);
+        }
+    })
+    updateItem.send();
 })
 
 function createMonth(req, res, month, year) {

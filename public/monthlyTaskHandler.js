@@ -1,3 +1,5 @@
+var monthlyTasks = document.querySelector(".monthly-tasks");
+var saveRequired = false;
 var clickAvailable = true;
 var backspaceAvailable = true;
 function disableClick(){
@@ -124,10 +126,43 @@ function setListeners(){
                 setListeners();
                 listDetails.setToPreviousItem();
                 disableBackspace();
+                saveRequired = true;
             }
             else {
                 listDetails.cursorPos = document.getSelection().baseOffset;
+                saveRequired = true;
             }
         })
     }
+}
+
+monthlyTasks.addEventListener("blur", function(){
+    console.log("blur");
+    console.log("save required: " + saveRequired);
+    if (saveRequired){
+        updateMonth();
+    }
+}, true)
+
+
+function updateMonth(){
+    saveRequired = false;
+
+    var id = document.querySelector(".month-name").getAttribute("data-month-uuid");
+    var items = document.querySelectorAll(".task-item");
+    var tasks = [];
+
+    items.forEach(function(item){
+        tasks.push(item.textContent);
+    });
+
+    axios.put("/api/month", {
+        data: {
+            monthId: id,
+            monthlyTasks: tasks
+        }
+    })
+        .then(function(response){
+            console.log(response);
+        })
 }

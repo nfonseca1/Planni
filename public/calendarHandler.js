@@ -62,5 +62,17 @@ function getMonth() // Send api call to get current month info
     })
         .then(function(response){
             monthName.textContent = response.data[0].Month;
+            monthName.setAttribute("data-month-uuid", response.data[0].UUID);
+            // TODO determine which month filter is default. Set tasks based on that month
+            var tasks = response.data[0].MonthlyTasks;
+            if (tasks != null && tasks.length > 0){
+                var tasksArea = document.querySelector(".monthly-tasks");
+                tasksArea.innerHTML = "";
+                for (var i = 0; i < tasks.length; i++){
+                    tasksArea.innerHTML += '<span class="task-item" contenteditable="true" data-position="0">' +
+                        tasks[i] + '</span>'
+                }
+                setListeners();
+            }
         })
 }
