@@ -61,8 +61,6 @@ function getMonth() // Send api call to get current month info
         }
     })
         .then(function(response){
-            console.log("retrieved");
-            console.log(response.data);
             monthName.textContent = response.data[0].Month;
         })
 }
