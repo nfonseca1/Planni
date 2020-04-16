@@ -1,4 +1,6 @@
+var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
+var activeCells = [];
 var monthName = document.querySelector(".month-name");
 var date = new Date(); // Today's date
 
@@ -10,6 +12,7 @@ var monthIndex, // Index of month 0 - 11 (January - December)
 determineDateInfo();
 applyDates();
 getMonth();
+setDateListeners();
 
 function determineDateInfo() // Determine the first day of month, last date of month and previous month
 {
@@ -31,6 +34,7 @@ function determineDateInfo() // Determine the first day of month, last date of m
 
 function applyDates() // Loop through calendar cells and apply date number to appropriate cell
 {
+    activeCells = [];
     var previousDates = (lastDateOfPreviousMonth - firstDayOfMonth) + 1;
     var currentDates = 1;
     var nextDates = 1;
@@ -43,6 +47,7 @@ function applyDates() // Loop through calendar cells and apply date number to ap
         else if (currentDates <= lastDateOfMonth){ // Dates for this month
             calendarCells[i].textContent = currentDates;
             currentDates++;
+            activeCells.push(calendarCells[i]);
         }
         else { // Dates for next month
             calendarCells[i].textContent = nextDates;
@@ -72,7 +77,18 @@ function getMonth() // Send api call to get current month info
                     tasksArea.innerHTML += '<span class="task-item" contenteditable="true" data-position="0">' +
                         tasks[i] + '</span>'
                 }
-                setListeners();
+                setListListeners();
             }
         })
+}
+
+function setDateListeners(){
+    var dateView = document.querySelector(".date-background");
+    for (let i = 0; i < activeCells.length; i++){
+        activeCells[i].addEventListener("click", function(){
+            dateView.style.visibility = "visible";
+            document.querySelector(".date-number").textContent = i+1;
+            setListListeners(dateListDetails);
+        })
+    }
 }

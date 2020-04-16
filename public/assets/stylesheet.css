@@ -215,3 +215,51 @@ body {
     min-height: 5%;
     border-bottom: 1px solid gray;
 }
+
+.date-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vw;
+    background-color: rgba(0,0,0,0.7);
+    visibility: hidden;
+}
+
+.date-view {
+    position: absolute;
+    width: 40vw;
+    height: 60vh;
+    left: 30vw;
+    top: 25vh;
+    background-color: #e0e0e0;
+}
+
+.date-header {
+    display: inline-flex;
+    height: 6vh;
+    width: 94%;
+    justify-content: space-between;
+    background-color: #c0c0c0;
+    border-bottom: 1px solid #bababa;
+    padding: 0 3% 0 3%;
+}
+
+.date-number {
+    height: 100%;
+    font-size: 5vh;
+}
+
+.date-body {
+    display: inline-block;
+    height: 54vh;
+    width: 94%;
+    padding: 3vh 3% 0 3%;
+}
+
+.date-item {
+    display: inline-block;
+    width: 100%;
+    min-height: 5%;
+    border-bottom: 1px solid gray;
+}

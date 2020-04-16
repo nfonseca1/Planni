@@ -1,17 +1,26 @@
 var monthlyTasks = document.querySelector(".monthly-tasks");
-var saveRequired = false;
-var clickAvailable = true;
-var backspaceAvailable = true;
-function disableClick(){
-    clickAvailable = false
-    setInterval(function(){
-        clickAvailable = true;
+function disableClick(list){
+    list.clickAvailable = false;
+    setTimeout(function(){
+        list.clickAvailable = true;
     }, 100)
 }
-function disableBackspace(){
-    backspaceAvailable = false
-    setInterval(function(){
-        backspaceAvailable = true;
+function disableBackspace(list){
+    list.backspaceAvailable = false;
+    setTimeout(function(){
+        list.backspaceAvailable = true;
+    }, 100)
+}
+function disableEnter(list){
+    list.enterAvailable = false;
+    setTimeout(function(){
+        list.enterAvailable = true;
+    }, 100)
+}
+function disableTab(list){
+    list.tabAvailable = false;
+    setTimeout(function(){
+        list.tabAvailable = true;
     }, 100)
 }
 
@@ -73,11 +82,27 @@ var listDetails = {
     activeIndex: 0,
     nextItemIndex: null,
     previousItemIndex: null,
-    cursorPos: 0
+    cursorPos: 0,
+    getItems: function(){
+        var items = document.querySelectorAll(".task-item");
+        for (let i = 0; i < items.length; i++){
+            items[i].setAttribute("data-position", i.toString());
+        }
+        this.setItems(items);
+        return items;
+    },
+    clickAvailable: true,
+    backspaceAvailable: true,
+    enterAvailable: true,
+    tabAvailable: true,
+    saveRequired: false,
+    getListItemHTML: function(index){
+        return '<span class="task-item" contenteditable="true" data-position="' + index.toString() + '"></span>';
+    }
 }
 
 // Set initial listeners for items
-setListeners();
+setListListeners(listDetails);
 // Prevent default tab and enter key functionality
 document.onkeydown = function(e){
     if(e.key === "Tab"){
@@ -88,49 +113,42 @@ document.onkeydown = function(e){
     }
 }
 
-function getItems(){
-    var items = document.querySelectorAll(".task-item");
-    for (let i = 0; i < items.length; i++){
-        items[i].setAttribute("data-position", i.toString());
-    }
-    listDetails.setItems(items);
-    return items;
-}
-
-function setListeners(){
-    var items = getItems();
+function setListListeners(list){
+    var items = list.getItems();
 
     for (let i = 0; i < items.length; i++){
         items[i].removeEventListener("click", function(){});
         items[i].addEventListener("click", function(){
-            if (clickAvailable == false) return;
+            if (list.clickAvailable == false) return;
             var pos = document.activeElement.getAttribute("data-position");
-            listDetails.setActiveItem(parseInt(pos));
-            disableClick();
+            list.setActiveItem(parseInt(pos));
+            disableClick(list);
         })
         items[i].addEventListener("keyup", function(e){
             if (e.key === "Tab"){
-                if (listDetails.activeIndex != i) return; // Prevents duplicate event trigger
-                listDetails.setToNextItem();
+                if (list.activeIndex != i || !list.tabAvailable) return; // Prevents duplicate event trigger
+                list.setToNextItem();
+                disableTab(list);
             }
             else if (e.key === "Enter"){
-                if (listDetails.activeIndex != i) return; // Prevents duplicate event trigger
-                listDetails.listItems[listDetails.activeIndex].outerHTML +=
-                    '<span class="task-item" contenteditable="true" data-position="' + i.toString() + '"></span>';
-                setListeners();
-                listDetails.setActiveItem(i + 1);
+                if (list.activeIndex != i || !list.enterAvailable) return; // Prevents duplicate event trigger
+                list.listItems[list.activeIndex].outerHTML +=
+                    list.getListItemHTML(i);
+                setListListeners(list);
+                list.setActiveItem(i + 1);
+                disableEnter(list);
             }
-            else if (e.key === "Backspace" && listDetails.cursorPos == 0){
-                if (listDetails.activeIndex != i || backspaceAvailable == false) return; // Prevents duplicate event trigger
-                listDetails.listItems[listDetails.activeIndex].outerHTML = "";
-                setListeners();
-                listDetails.setToPreviousItem();
-                disableBackspace();
-                saveRequired = true;
+            else if (e.key === "Backspace" && list.cursorPos == 0){
+                if (list.activeIndex != i || list.backspaceAvailable == false) return; // Prevents duplicate event trigger
+                list.listItems[list.activeIndex].outerHTML = "";
+                setListListeners(list);
+                list.setToPreviousItem();
+                disableBackspace(list);
+                list.saveRequired = true;
             }
             else {
-                listDetails.cursorPos = document.getSelection().baseOffset;
-                saveRequired = true;
+                list.cursorPos = document.getSelection().baseOffset;
+                list.saveRequired = true;
             }
         })
     }
@@ -138,15 +156,15 @@ function setListeners(){
 
 monthlyTasks.addEventListener("blur", function(){
     console.log("blur");
-    console.log("save required: " + saveRequired);
-    if (saveRequired){
+    console.log("save required: " + listDetails.saveRequired);
+    if (listDetails.saveRequired){
         updateMonth();
     }
 }, true)
 
 
 function updateMonth(){
-    saveRequired = false;
+    listDetails.saveRequired = false;
 
     var id = document.querySelector(".month-name").getAttribute("data-month-uuid");
     var items = document.querySelectorAll(".task-item");
