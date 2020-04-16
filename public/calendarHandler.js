@@ -91,4 +91,12 @@ function setDateListeners(){
             setListListeners(dateListDetails);
         })
     }
+    var colorBtn = document.querySelector(".text-color-dropdown");
+    colorBtn.addEventListener("change", function(){
+        dateListDetails.listItems[dateListDetails.activeIndex].style.color = colorBtn.value;
+    })
+    var backBtn = document.querySelector(".back-button");
+    backBtn.addEventListener("click", function(){
+        dateView.style.visibility = "hidden";
+    })
 }

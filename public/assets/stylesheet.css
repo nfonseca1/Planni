@@ -235,6 +235,32 @@ body {
     background-color: #e0e0e0;
 }
 
+.back-button {
+    position: absolute;
+    width: 2.5vw;
+    height: 2.5vw;
+    left: 25vw;
+    top: 17.5vh;
+    text-align: center;
+    font-weight: bold;
+    font-size: 4vh;
+    background-color: #e0e0e0;
+    border-radius: 5vw;
+}
+
+.date-view-sidebar {
+    position: absolute;
+    width: 2.5vw;
+    height: 60vh;
+    left: 25vw;
+    top: 25vh;
+    background-color: #e0e0e0;
+}
+
+.text-color-dropdown {
+    width: 100%;
+}
+
 .date-header {
     display: inline-flex;
     height: 6vh;
