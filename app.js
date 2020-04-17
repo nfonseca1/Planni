@@ -502,13 +502,52 @@ app.post("/api/dates", function(req, res){
 })
 
 app.put("/api/dates", function(req, res){
-    var putParams = {
-        Item: {
-            "": {
-                S: ""
+    var taskArr = [];
+    req.body.data.tasks.forEach(function(task){
+        var obj = {
+            M: {
+                Text: {
+                    S: task.Text
+                },
+                Color: {
+                    S: task.Color
+                },
+                IsUnderlined: {
+                    BOOL: task.IsUnderlined
+                }
             }
         }
+        taskArr.push(obj);
+    })
+    var updateParams = {
+        Key: {
+            "MonthId": {
+                S: req.body.data.monthId
+            },
+            "Date": {
+                N: req.body.data.date.toString()
+            }
+        },
+        ExpressionAttributeNames: {
+            "#T": "Tasks"
+        },
+        ExpressionAttributeValues: {
+            ":t": {
+                L: taskArr
+            }
+        },
+        UpdateExpression: "SET #T = :t",
+        TableName: "Planni-PlannerDates",
+        ReturnValues: "ALL_NEW"
     }
+    var updateItem = dynamoDB.updateItem(updateParams);
+    updateItem.on("complete", function(response){
+        if (response.error) console.log(response.error);
+        else {
+            res.send(response.data);
+        }
+    })
+    updateItem.send();
 })
 
 app.get("*", function(req, res){

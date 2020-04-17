@@ -1,6 +1,7 @@
 var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
 var activeCells = [];
+var selectedCellIndex;
 var check = true;
 
 var monthName = document.querySelector(".month-name");
@@ -89,29 +90,14 @@ function setDateListeners(){
         activeCells[i].addEventListener("click", function(){
             dateView.style.visibility = "visible";
             document.querySelector(".date-number").textContent = i+1;
+            selectedCellIndex = i;
             setListListeners(dateListDetails);
 
             if (activeCells[i].getAttribute("data-date-uuid")) {
 
             }
             else {
-                axios.post("/api/dates", {
-                    data: {
-                        monthId: monthName.getAttribute("data-month-uuid"),
-                        date: i + 1,
-                        check: check
-                    }
-                })
-                    .then(function(response){
-                        if (response.data.FoundItem) {
-                            activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
-                            console.log(response.data.Item);
-                        }
-                        else {
-                            activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
-                            console.log(response.data.Item.UUID);
-                        }
-                    })
+                createDate(i);
             }
         })
     }
@@ -123,4 +109,24 @@ function setDateListeners(){
     backBtn.addEventListener("click", function(){
         dateView.style.visibility = "hidden";
     })
+}
+
+function createDate(i){
+    axios.post("/api/dates", {
+        data: {
+            monthId: monthName.getAttribute("data-month-uuid"),
+            date: i + 1,
+            check: check
+        }
+    })
+        .then(function(response){
+            if (response.data.FoundItem) {
+                activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
+                console.log(response.data.Item);
+            }
+            else {
+                activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
+                console.log(response.data.Item.UUID);
+            }
+        })
 }

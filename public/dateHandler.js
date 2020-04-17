@@ -1,4 +1,3 @@
-var dateBody = document.querySelector(".date-body");
 
 function setEndOfContenteditable(contentEditableElement)
 {
@@ -87,29 +86,47 @@ document.onkeydown = function(e){
     }
 }
 
-dateBody.addEventListener("blur", function(){
+document.querySelector(".back-button").addEventListener("click", function(){
     if (dateListDetails.saveRequired){
-        updateMonth();
+        updateDate();
     }
 }, true)
 
 
-function updateMonth(){
+function updateDate(){
     dateListDetails.saveRequired = false;
 
     var id = document.querySelector(".month-name").getAttribute("data-month-uuid");
     var items = document.querySelectorAll(".date-item");
-    var tasks = [];
+    var reminders = document.querySelectorAll(".date-reminders");
+    var itemsArr = [];
+    var remindersArr = [];
 
     items.forEach(function(item){
-        tasks.push(item.textContent);
+        var obj = {
+            Text: item.textContent,
+            Color: item.style.color,
+            IsUnderlined: false
+        }
+        if (obj.Color == "") obj.Color = "black";
+        itemsArr.push(obj);
+    });
+    reminders.forEach(function(reminder){
+        var obj = {
+            Text: reminder.textContent
+        }
+        remindersArr.push(obj);
     });
 
-    axios.put("/api/month", {
-        data: {
-            monthId: id,
-            monthlyTasks: tasks
-        }
+    var data = {
+        monthId: id,
+        date: selectedCellIndex + 1
+    }
+    if (itemsArr.length > 0) data.tasks = itemsArr;
+    if (remindersArr.length > 0) data.reminders = remindersArr;
+
+    axios.put("/api/dates", {
+        data: data
     })
         .then(function(response){
             console.log(response);
