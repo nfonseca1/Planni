@@ -86,3 +86,32 @@ document.onkeydown = function(e){
         return false;
     }
 }
+
+dateBody.addEventListener("blur", function(){
+    if (dateListDetails.saveRequired){
+        updateMonth();
+    }
+}, true)
+
+
+function updateMonth(){
+    dateListDetails.saveRequired = false;
+
+    var id = document.querySelector(".month-name").getAttribute("data-month-uuid");
+    var items = document.querySelectorAll(".date-item");
+    var tasks = [];
+
+    items.forEach(function(item){
+        tasks.push(item.textContent);
+    });
+
+    axios.put("/api/month", {
+        data: {
+            monthId: id,
+            monthlyTasks: tasks
+        }
+    })
+        .then(function(response){
+            console.log(response);
+        })
+}

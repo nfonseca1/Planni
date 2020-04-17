@@ -398,6 +398,119 @@ function createMonth(req, res, month, year) {
     batchWrite.send();
 }
 
+app.get("/api/dates", function(req, res){
+    var queryParams = {
+        ExpressionAttributeNames: {
+            "#d": "Date"
+        },
+        ExpressionAttributeValues: {
+            ":id": {
+                S: req.query.monthId
+            }
+        },
+        keyConditionExpression: "MonthId = :id AND #d > 0",
+        TableName: "Planni-PlannerDates"
+    }
+    var query = dynamoDB.query(queryParams);
+    query.on("complete", function(response){
+        if (response.error) console.log(response);
+        else {
+            var dateArr = [];
+            response.Items.forEach(function(item){
+                var itemObj = {
+                    UserId: item.S.UserId,
+                    UUID: item.S.UUID,
+                    Date: item.S.Date,
+                    MonthId: item.S.MonthId,
+                    Sticker: item.S.Sticker,
+                    NoteId: item.S.NoteId,
+                    Tasks: item.S.Tasks,
+                    Reminders: item.S.Reminders
+                }
+                dateArr.push(itemObj);
+            })
+            res.send(dateArr);
+        }
+    })
+    query.send();
+})
+
+app.post("/api/dates", function(req, res){
+    var getParams = {
+        Key: {
+            MonthId: {
+                S: req.body.data.monthId
+            },
+            Date: {
+                N: req.body.data.date.toString()
+            }
+        },
+        TableName: "Planni-PlannerDates"
+    }
+    var getItem = dynamoDB.getItem(getParams);
+    getItem.on("complete", function(response){
+        if (response.error) console.log(response.error);
+        else if (response.data.Item) {
+            console.log(response.data);
+            var itemObj = {
+                UserId: response.data.Item.UserId.S,
+                UUID: response.data.Item.UUID.S,
+                Date: response.data.Item.Date.N,
+                MonthId: response.data.Item.MonthId.S
+            }
+            if (response.data.Item.Sticker) itemObj.Sticker = response.data.Item.Sticker.S;
+            if (response.data.Item.NoteId) itemObj.NoteId = response.data.Item.NoteId.S;
+            if (response.data.Item.Tasks) itemObj.Tasks = response.data.Item.Tasks.S;
+            if (response.data.Item.Reminders) itemObj.Reminders = response.data.Item.Reminders.S;
+            res.send({FoundItem: true, Item: itemObj});
+        }
+        else {
+            putItem.send();
+        }
+    })
+    var id = uuid.v1();
+    var putParams = {
+        Item: {
+            "UserId": {
+                S: req.session.user.uuid
+            },
+            "UUID": {
+                S: id
+            },
+            "Date": {
+                N: req.body.data.date.toString()
+            },
+            "MonthId": {
+                S: req.body.data.monthId
+            }
+        },
+        TableName: "Planni-PlannerDates"
+    }
+    var putItem = dynamoDB.putItem(putParams);
+    putItem.on("complete", function(response){
+        if (response.error) console.log(response.error);
+        else {
+            res.send({FoundItem: false, Item: {UUID: id}});
+        }
+    })
+    if (req.body.data.check == true){
+        getItem.send();
+    }
+    else {
+        putItem.send();
+    }
+})
+
+app.put("/api/dates", function(req, res){
+    var putParams = {
+        Item: {
+            "": {
+                S: ""
+            }
+        }
+    }
+})
+
 app.get("*", function(req, res){
     res.send("url not found");
 })

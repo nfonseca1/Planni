@@ -156,8 +156,6 @@ function setListListeners(list){
 }
 
 monthlyTasks.addEventListener("blur", function(){
-    console.log("blur");
-    console.log("save required: " + listDetails.saveRequired);
     if (listDetails.saveRequired){
         updateMonth();
     }

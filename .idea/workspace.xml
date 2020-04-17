@@ -3,10 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="7f840ced-7df8-44c8-a76c-1dc37fb4c86e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/assets/stylesheet.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/assets/stylesheet.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/calendarHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/calendarHandler.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/dateHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/dateHandler.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/monthlyTaskHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/monthlyTaskHandler.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/plannerView.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/plannerView.ejs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -22,8 +22,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="333" column="38" lean-forward="true" selection-start-line="333" selection-start-column="38" selection-end-line="333" selection-end-column="38" />
+            <state relative-caret-position="266">
+              <caret line="458" column="53" selection-start-line="458" selection-start-column="53" selection-end-line="458" selection-end-column="53" />
             </state>
           </provider>
         </entry>
@@ -32,25 +32,25 @@
         <entry file="file://$PROJECT_DIR$/planner.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="255">
-              <caret line="70" column="14" lean-forward="true" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/views/plannerView.ejs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="601">
-              <caret line="85" column="14" selection-start-line="85" selection-start-column="14" selection-end-line="85" selection-end-column="14" />
+              <caret line="70" column="14" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/views/plannerView.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="635">
+              <caret line="85" column="14" selection-start-line="85" selection-start-column="14" selection-end-line="85" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/calendarHandler.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="561">
-              <caret line="99" column="45" selection-start-line="99" selection-start-column="45" selection-end-line="99" selection-end-column="45" />
+            <state relative-caret-position="361">
+              <caret line="107" column="60" lean-forward="true" selection-start-line="107" selection-start-column="60" selection-end-line="107" selection-end-column="60" />
             </state>
           </provider>
         </entry>
@@ -58,8 +58,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/dateHandler.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="501">
-              <caret line="87" column="1" selection-start-line="87" selection-start-column="1" selection-end-line="87" selection-end-column="1" />
+            <state relative-caret-position="535">
+              <caret line="104" column="37" selection-start-line="104" selection-start-column="37" selection-end-line="104" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -67,8 +67,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/monthlyTaskHandler.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+            <state relative-caret-position="235">
+              <caret line="157" column="49" selection-start-line="157" selection-start-column="49" selection-end-line="157" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -76,8 +76,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/Server/Registration.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2061">
-              <caret line="128" column="13" lean-forward="true" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
+            <state relative-caret-position="2140">
+              <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
               <folding>
                 <element signature="e#663#1212#0" />
               </folding>
@@ -88,8 +88,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/assets/stylesheet.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="541">
-              <caret line="247" column="19" lean-forward="true" selection-start-line="247" selection-start-column="19" selection-end-line="247" selection-end-column="19" />
+            <state relative-caret-position="4940">
+              <caret line="247" column="19" selection-start-line="247" selection-start-column="19" selection-end-line="247" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -142,13 +142,13 @@
         <option value="$PROJECT_DIR$/views/login.ejs" />
         <option value="$PROJECT_DIR$/public/Server/Registration.js" />
         <option value="$PROJECT_DIR$/routes/api.js" />
-        <option value="$PROJECT_DIR$/app.js" />
-        <option value="$PROJECT_DIR$/public/dateHandler.js" />
-        <option value="$PROJECT_DIR$/public/monthlyTaskHandler.js" />
         <option value="$PROJECT_DIR$/planner.html" />
         <option value="$PROJECT_DIR$/public/assets/stylesheet.css" />
-        <option value="$PROJECT_DIR$/public/calendarHandler.js" />
         <option value="$PROJECT_DIR$/views/plannerView.ejs" />
+        <option value="$PROJECT_DIR$/public/monthlyTaskHandler.js" />
+        <option value="$PROJECT_DIR$/public/dateHandler.js" />
+        <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/public/calendarHandler.js" />
       </list>
     </option>
   </component>
@@ -274,11 +274,12 @@
       <workItem from="1585619791530" duration="522000" />
       <workItem from="1585620356025" duration="81377000" />
       <workItem from="1585875853970" duration="102513000" />
+      <workItem from="1587072894799" duration="13707000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="255555000" />
+    <option name="totallyTimeSpent" value="269694000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -341,21 +342,9 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/app.js</url>
-          <line>389</line>
+          <line>453</line>
           <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="37" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app.js</url>
-          <line>300</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/app.js</url>
-          <line>280</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="41" />
+          <option name="timeStamp" value="42" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -467,20 +456,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/createNote2.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="29" column="43" selection-start-line="29" selection-start-column="43" selection-end-line="29" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/createNote.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2060">
-          <caret line="103" column="61" lean-forward="true" selection-start-line="103" selection-start-column="24" selection-end-line="103" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/createNote2.js" />
+    <entry file="file://$PROJECT_DIR$/createNote.js" />
     <entry file="file://$PROJECT_DIR$/board.html" />
     <entry file="file://$PROJECT_DIR$/plannerView.html" />
     <entry file="file://$PROJECT_DIR$/testFiles/board.html" />
@@ -512,30 +489,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/Server/Registration.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2061">
-          <caret line="128" column="13" lean-forward="true" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
-          <folding>
-            <element signature="e#663#1212#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/createNote1.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="191" column="70" selection-start-line="191" selection-start-column="35" selection-end-line="191" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="333" column="38" lean-forward="true" selection-start-line="333" selection-start-column="38" selection-end-line="333" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/createNote1.js" />
     <entry file="file://$PROJECT_DIR$/public/getNotes.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="40">
@@ -550,45 +504,62 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/dateHandler.js">
+    <entry file="file://$PROJECT_DIR$/public/Server/Registration.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="501">
-          <caret line="87" column="1" selection-start-line="87" selection-start-column="1" selection-end-line="87" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/monthlyTaskHandler.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+        <state relative-caret-position="2140">
+          <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
+          <folding>
+            <element signature="e#663#1212#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/assets/stylesheet.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="541">
-          <caret line="247" column="19" lean-forward="true" selection-start-line="247" selection-start-column="19" selection-end-line="247" selection-end-column="19" />
+        <state relative-caret-position="4940">
+          <caret line="247" column="19" selection-start-line="247" selection-start-column="19" selection-end-line="247" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/calendarHandler.js">
+    <entry file="file://$PROJECT_DIR$/public/dateHandler.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="561">
-          <caret line="99" column="45" selection-start-line="99" selection-start-column="45" selection-end-line="99" selection-end-column="45" />
+        <state relative-caret-position="535">
+          <caret line="104" column="37" selection-start-line="104" selection-start-column="37" selection-end-line="104" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/monthlyTaskHandler.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="157" column="49" selection-start-line="157" selection-start-column="49" selection-end-line="157" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/plannerView.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="635">
+          <caret line="85" column="14" selection-start-line="85" selection-start-column="14" selection-end-line="85" selection-end-column="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/planner.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
-          <caret line="70" column="14" lean-forward="true" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
+          <caret line="70" column="14" selection-start-line="70" selection-start-column="14" selection-end-line="70" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/plannerView.ejs">
+    <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="601">
-          <caret line="85" column="14" selection-start-line="85" selection-start-column="14" selection-end-line="85" selection-end-column="14" />
+        <state relative-caret-position="266">
+          <caret line="458" column="53" selection-start-line="458" selection-start-column="53" selection-end-line="458" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/calendarHandler.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="107" column="60" lean-forward="true" selection-start-line="107" selection-start-column="60" selection-end-line="107" selection-end-column="60" />
         </state>
       </provider>
     </entry>

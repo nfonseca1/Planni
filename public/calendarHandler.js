@@ -1,9 +1,10 @@
 var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
 var activeCells = [];
+var check = true;
+
 var monthName = document.querySelector(".month-name");
 var date = new Date(); // Today's date
-
 var monthIndex, // Index of month 0 - 11 (January - December)
     firstDayOfMonth, // Index starting from 0 - 6 (Sunday - Saturday)
     lastDateOfMonth, // Last date of month (30, 31 etc.)
@@ -89,6 +90,29 @@ function setDateListeners(){
             dateView.style.visibility = "visible";
             document.querySelector(".date-number").textContent = i+1;
             setListListeners(dateListDetails);
+
+            if (activeCells[i].getAttribute("data-date-uuid")) {
+
+            }
+            else {
+                axios.post("/api/dates", {
+                    data: {
+                        monthId: monthName.getAttribute("data-month-uuid"),
+                        date: i + 1,
+                        check: check
+                    }
+                })
+                    .then(function(response){
+                        if (response.data.FoundItem) {
+                            activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
+                            console.log(response.data.Item);
+                        }
+                        else {
+                            activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
+                            console.log(response.data.Item.UUID);
+                        }
+                    })
+            }
         })
     }
     var colorBtn = document.querySelector(".text-color-dropdown");
