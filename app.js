@@ -406,27 +406,41 @@ app.get("/api/dates", function(req, res){
         ExpressionAttributeValues: {
             ":id": {
                 S: req.query.monthId
+            },
+            ":d": {
+                N: "0"
             }
         },
-        keyConditionExpression: "MonthId = :id AND #d > 0",
+        KeyConditionExpression: "MonthId = :id AND #d > :d",
         TableName: "Planni-PlannerDates"
     }
     var query = dynamoDB.query(queryParams);
     query.on("complete", function(response){
-        if (response.error) console.log(response);
+        if (response.error) console.log(response.error);
         else {
             var dateArr = [];
-            response.Items.forEach(function(item){
+            response.data.Items.forEach(function(item){
                 var itemObj = {
-                    UserId: item.S.UserId,
-                    UUID: item.S.UUID,
-                    Date: item.S.Date,
-                    MonthId: item.S.MonthId,
-                    Sticker: item.S.Sticker,
-                    NoteId: item.S.NoteId,
-                    Tasks: item.S.Tasks,
-                    Reminders: item.S.Reminders
+                    UserId: item.UserId.S,
+                    UUID: item.UUID.S,
+                    Date: item.Date.N,
+                    MonthId: item.MonthId.S
                 }
+                if (item.Sticker) itemObj.Sticker = item.Sticker.S;
+                if (item.NoteId) itemObj.NoteId = item.NoteId.S;
+                if (item.Tasks) {
+                    var tasksArr = [];
+                    item.Tasks.L.forEach(function(task){
+                        var taskObj = {
+                            Text: task.M.Text.S,
+                            Color: task.M.Color.S,
+                            IsUnderlined: task.M.IsUnderlined.BOOL
+                        }
+                        tasksArr.push(taskObj);
+                    })
+                    itemObj.Tasks = tasksArr;
+                }
+                if (item.Reminders) itemObj.Reminders = item.Reminders.L;
                 dateArr.push(itemObj);
             })
             res.send(dateArr);

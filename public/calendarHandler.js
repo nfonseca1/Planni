@@ -1,6 +1,7 @@
 var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
 var activeCells = [];
+var activeCellTasks = [];
 var selectedCellIndex;
 var check = true;
 
@@ -42,17 +43,18 @@ function applyDates() // Loop through calendar cells and apply date number to ap
     var nextDates = 1;
     for (var i = 0; i < calendarCells.length; i++){
         if (i < firstDayOfMonth) { // Dates in previous month
-            calendarCells[i].textContent = previousDates;
+            calendarCells[i].querySelector(".calendar-cell-info").textContent = previousDates;
             calendarCells[i].classList.add("inactive-cell");
             previousDates++;
         }
         else if (currentDates <= lastDateOfMonth){ // Dates for this month
-            calendarCells[i].textContent = currentDates;
+            calendarCells[i].querySelector(".calendar-cell-info").textContent = currentDates;
             currentDates++;
             activeCells.push(calendarCells[i]);
+            activeCellTasks.push(calendarCells[i].querySelector(".date-cell-tasks"));
         }
         else { // Dates for next month
-            calendarCells[i].textContent = nextDates;
+            calendarCells[i].querySelector(".calendar-cell-info").textContent = nextDates;
             calendarCells[i].classList.add("inactive-cell");
             nextDates++;
         }
@@ -79,7 +81,38 @@ function getMonth() // Send api call to get current month info
                     tasksArea.innerHTML += '<span class="task-item" contenteditable="true" data-position="0">' +
                         tasks[i] + '</span>'
                 }
-                setListListeners();
+                setListListeners(listDetails);
+            }
+
+            getDates(response.data[0].UUID);
+        })
+}
+
+function getDates(monthId){
+    axios.get("/api/dates", {
+        params: {
+            monthId: monthId
+        }
+    })
+        .then(function(response){
+            for (let i = 1; i <= activeCells.length; i++){
+                // If date is later than the last retrieved db date, stop
+                if (i > response.data[response.data.length - 1].Date) break;
+                // Otherwise, loop through each retrieved db date and see if theres a match
+                for (let x = 0; x < response.data.length; x++){
+                    if (response.data[x].Date == i){ // If there's a match, fill in the date cell data
+                        // Fill in date data
+                        response.data[x].Tasks.forEach(function(task){
+                            var underlined = "none";
+                            if (task.IsUnderlined) underlined = "underline";
+                            activeCellTasks[i].innerHTML += "<li style='color: " + task.Color + "; text-decoration: " + underlined + ";'>" + task.Text;
+                        })
+                        break;
+                    }
+                    else if (response.data[x].Date > i){ // If the data's date is greater than what we're looking for, stop
+                        break;
+                    }
+                }
             }
         })
 }
