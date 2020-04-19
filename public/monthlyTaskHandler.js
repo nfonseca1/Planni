@@ -140,7 +140,7 @@ function setListListeners(list){
                 disableEnter(list);
             }
             else if (e.key === "Backspace" && list.cursorPos == 0){
-                if (list.activeIndex != i || list.backspaceAvailable == false || !list.previousItemIndex) return; // Prevents duplicate event trigger
+                if (list.activeIndex != i || list.backspaceAvailable == false || list.previousItemIndex == null) return; // Prevents duplicate event trigger
                 list.listItems[list.activeIndex].outerHTML = "";
                 setListListeners(list);
                 list.setToPreviousItem();

@@ -109,7 +109,7 @@ function updateDate(){
             IsUnderlined: false
         }
         if (obj.Color == "") obj.Color = "black";
-        itemsArr.push(obj);
+        if (obj.Text != "") itemsArr.push(obj);
     });
     reminders.forEach(function(reminder){
         var obj = {
@@ -122,7 +122,11 @@ function updateDate(){
         monthId: id,
         date: selectedCellIndex + 1
     }
-    if (itemsArr.length > 0) data.tasks = itemsArr;
+    if (itemsArr.length > 0) {
+        data.tasks = itemsArr;
+        activeCellTasks[selectedCellIndex] = itemsArr; // Update cell tasks to new content
+        updateDateCell(selectedCellIndex); // Display updated cell tasks in cell
+    }
     if (remindersArr.length > 0) data.reminders = remindersArr;
 
     axios.put("/api/dates", {

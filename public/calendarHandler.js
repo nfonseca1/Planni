@@ -1,6 +1,7 @@
 var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
 var activeCells = [];
+var activeCellBodies = [];
 var activeCellTasks = [];
 var selectedCellIndex;
 var check = true;
@@ -51,7 +52,8 @@ function applyDates() // Loop through calendar cells and apply date number to ap
             calendarCells[i].querySelector(".calendar-cell-info").textContent = currentDates;
             currentDates++;
             activeCells.push(calendarCells[i]);
-            activeCellTasks.push(calendarCells[i].querySelector(".date-cell-tasks"));
+            activeCellBodies.push(calendarCells[i].querySelector(".date-cell-tasks"));
+            activeCellTasks.push([]);
         }
         else { // Dates for next month
             calendarCells[i].querySelector(".calendar-cell-info").textContent = nextDates;
@@ -95,18 +97,22 @@ function getDates(monthId){
         }
     })
         .then(function(response){
-            for (let i = 1; i <= activeCells.length; i++){
+            for (let i = 0; i < activeCells.length; i++){
                 // If date is later than the last retrieved db date, stop
                 if (i > response.data[response.data.length - 1].Date) break;
+
                 // Otherwise, loop through each retrieved db date and see if theres a match
                 for (let x = 0; x < response.data.length; x++){
-                    if (response.data[x].Date == i){ // If there's a match, fill in the date cell data
+                    if (response.data[x].Date == i + 1){ // If there's a match, fill in the date cell data
                         // Fill in date data
                         response.data[x].Tasks.forEach(function(task){
+                            activeCellTasks[i].push(task);
                             var underlined = "none";
                             if (task.IsUnderlined) underlined = "underline";
-                            activeCellTasks[i].innerHTML += "<li style='color: " + task.Color + "; text-decoration: " + underlined + ";'>" + task.Text;
+                            var listItem = "<li style='color: " + task.Color + "; text-decoration: " + underlined + ";'>" + task.Text + "</li>";
+                            activeCellBodies[i].innerHTML += listItem;
                         })
+                        activeCells[i].setAttribute("data-date-uuid", response.data[x].UUID);
                         break;
                     }
                     else if (response.data[x].Date > i){ // If the data's date is greater than what we're looking for, stop
@@ -117,6 +123,16 @@ function getDates(monthId){
         })
 }
 
+function updateDateCell(index){
+    activeCellBodies[index].innerHTML = "";
+    activeCellTasks[index].forEach(function(task){
+        var underlined = "none";
+        if (task.IsUnderlined) underlined = "underline";
+        var listItem = "<li style='color: " + task.Color + "; text-decoration: " + underlined + ";'>" + task.Text + "</li>";
+        activeCellBodies[index].innerHTML += listItem;
+    })
+}
+
 function setDateListeners(){
     var dateView = document.querySelector(".date-background");
     for (let i = 0; i < activeCells.length; i++){
@@ -124,10 +140,24 @@ function setDateListeners(){
             dateView.style.visibility = "visible";
             document.querySelector(".date-number").textContent = i+1;
             selectedCellIndex = i;
-            setListListeners(dateListDetails);
+            var dateViewTasks = document.querySelector(".date-body");
+            dateViewTasks.innerHTML = "";
 
             if (activeCells[i].getAttribute("data-date-uuid")) {
-
+                if (activeCellTasks[i].length == 0) {
+                    createDefaultDateViewListItem();
+                    setListListeners(dateListDetails);
+                }
+                else {
+                    activeCellTasks[i].forEach(function(task){
+                        var underlined = "none";
+                        if (task.IsUnderlined) underlined = "underline";
+                        var listItem = "<span class='date-item' contenteditable='true' style='color: " +
+                            task.Color + "; text-decoration: " + underlined + ";'>" + task.Text + "</span>";
+                        dateViewTasks.innerHTML += listItem;
+                    })
+                    setListListeners(dateListDetails);
+                }
             }
             else {
                 createDate(i);
@@ -154,12 +184,31 @@ function createDate(i){
     })
         .then(function(response){
             if (response.data.FoundItem) {
+                var dateViewTasks = document.querySelector(".date-body");
+                dateViewTasks.innerHTML = "";
                 activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
-                console.log(response.data.Item);
+                var tasks = response.data.Item.Tasks;
+                tasks.forEach(function(task){
+                    activeCellTasks[i].push(task);
+                    var underlined = "none";
+                    if (task.IsUnderlined) underlined = "underline";
+                    var listItem = "<li style='color: " + task.Color + "; text-decoration: " + underlined + ";'>" + task.Text + "</li>";
+                    dateViewTasks.innerHTML += listItem;
+                })
+                activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
+                setListListeners(dateListDetails);
             }
             else {
                 activeCells[i].setAttribute("data-date-uuid", response.data.Item.UUID);
-                console.log(response.data.Item.UUID);
+                createDefaultDateViewListItem();
+                setListListeners(dateListDetails);
             }
         })
+}
+
+function createDefaultDateViewListItem(){
+    var dateViewTasks = document.querySelector(".date-body");
+    dateViewTasks.innerHTML = "";
+    var listItem = '<span class="date-item" contenteditable="true" data-position="0"></span>';
+    dateViewTasks.innerHTML += listItem;
 }
