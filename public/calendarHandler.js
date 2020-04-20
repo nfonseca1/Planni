@@ -1,5 +1,7 @@
 var notesView = document.querySelector(".notes-view-container");
 var calendarCells = document.querySelectorAll(".calendar-cell");
+var nextMonthBtn = document.querySelector(".next-month-btn");
+var previousMonthBtn = document.querySelector(".previous-month-btn");
 var activeCells = [];
 var activeCellBodies = [];
 var activeCellTasks = [];
@@ -13,10 +15,12 @@ var monthIndex, // Index of month 0 - 11 (January - December)
     lastDateOfMonth, // Last date of month (30, 31 etc.)
     lastDateOfPreviousMonth; // Last date of last month
 
-determineDateInfo();
-applyDates();
-getMonth();
-setDateListeners();
+
+function createCalendar(){
+    determineDateInfo();
+    applyDates();
+    getMonth();
+}
 
 function determineDateInfo() // Determine the first day of month, last date of month and previous month
 {
@@ -65,6 +69,8 @@ function applyDates() // Loop through calendar cells and apply date number to ap
 
 function getMonth() // Send api call to get current month info
 {
+    var tasksArea = document.querySelector(".monthly-tasks");
+    tasksArea.innerHTML = "";
     axios.get("/api/month", {
         params: {
             monthIndex: monthIndex,
@@ -77,13 +83,14 @@ function getMonth() // Send api call to get current month info
             // TODO determine which month filter is default. Set tasks based on that month
             var tasks = response.data[0].MonthlyTasks;
             if (tasks != null && tasks.length > 0){
-                var tasksArea = document.querySelector(".monthly-tasks");
-                tasksArea.innerHTML = "";
                 for (var i = 0; i < tasks.length; i++){
                     tasksArea.innerHTML += '<span class="task-item" contenteditable="true" data-position="0">' +
                         tasks[i] + '</span>'
                 }
                 setListListeners(listDetails);
+            }
+            else {
+                tasksArea.innerHTML = '<span class="task-item" contenteditable="true" data-position="0"></span>';
             }
 
             getDates(response.data[0].UUID);
@@ -98,9 +105,9 @@ function getDates(monthId){
     })
         .then(function(response){
             for (let i = 0; i < activeCells.length; i++){
-                // If date is later than the last retrieved db date, stop
-                if (i > response.data[response.data.length - 1].Date) break;
+                activeCellBodies[i].innerHTML = "";
 
+                if (response.data.length == 0) continue;
                 // Otherwise, loop through each retrieved db date and see if theres a match
                 for (let x = 0; x < response.data.length; x++){
                     if (response.data[x].Date == i + 1){ // If there's a match, fill in the date cell data
@@ -120,6 +127,7 @@ function getDates(monthId){
                     }
                 }
             }
+            setDateListeners();
         })
 }
 
@@ -212,3 +220,15 @@ function createDefaultDateViewListItem(){
     var listItem = '<span class="date-item" contenteditable="true" data-position="0"></span>';
     dateViewTasks.innerHTML += listItem;
 }
+
+previousMonthBtn.addEventListener("click", function(){
+    date.setMonth(monthIndex - 1);
+    createCalendar();
+})
+
+nextMonthBtn.addEventListener("click", function(){
+    date.setMonth(monthIndex + 1);
+    createCalendar();
+})
+
+createCalendar();

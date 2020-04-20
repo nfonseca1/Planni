@@ -159,6 +159,16 @@ body {
 	border-radius: 1vh;
 }
 
+.calendar-header {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.month-name {
+	display: inline-block;
+}
+
 .calendar-table {
 	display: inline-block;
 	width: 90%;
