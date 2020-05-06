@@ -10,8 +10,7 @@ var app = express();
 //var apiRoutes = require("./routes/api");
 //app.use("/api", apiRoutes);
 
-var Validation = require("./Public/Server/Validation.js");
-var Registration = require("./Public/Server/Registration.js");
+var Registration = require("./server/Registration.js");
 
 const bcryptSR = 10;
 const months = ["January", "February", "March", "April", "May", "June",
@@ -26,7 +25,7 @@ var dynamoDB = new AWS.DynamoDB();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
-app.use(express.static(__dirname +'/public'));
+//app.use(express.static(__dirname +'/public'));
 app.engine('html', require('ejs').renderFile);
 
 app.use(
@@ -53,25 +52,25 @@ app.get("/", function(req, res){
 });
 
 // Registering
-app.post("/", function(req, res){
-    // Server side validation. If failed, re-render and notify
-    if (Validation.ValidateRegistration(req.body) == false){
-        res.render("login.ejs", {errorMsg: "Inputs were not filled in properly"});
+app.post("/register", function(req, res){
+    //Server side validation. If failed, return error message
+    if (Registration.validate(req.body.data) === false) {
+        res.send({error: "One or more input fields were not properly filled in"});
         return;
     }
-    // Reformat names, and set username to null if it has no value
-    var reformattedBody = Validation.FormatRegistration(req.body);
+    // Reformat inputs
+    var reformattedBody = Registration.format(req.body.data);
 
     // Hash password
     bcrypt.hash(reformattedBody.password, bcryptSR, function(err, hash){
         if (err) {
             console.log(err);
-            res.send("Error registering user");
+            res.send({error: "Error registering user"});
         }
         if (hash) {
             reformattedBody.password = hash;
             // When password hashes, complete registration process
-            Registration.RegisterUser(reformattedBody, req, res, function(){
+            Registration.registerUser(reformattedBody, req, res, function(){
                 res.redirect("/home");
             })
         }
@@ -568,6 +567,6 @@ app.get("*", function(req, res){
     res.send("url not found");
 })
 
-app.listen(3000, function(){
+app.listen(3001, function(){
 	console.log("Server Started...");
 });

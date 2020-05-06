@@ -8,7 +8,36 @@ var uuid = require("uuid");
 
 var exportsObj = {}
 
-exportsObj.RegisterUser = function (reformattedBody, req, res, callback){
+var validation = {
+    firstname: new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
+    lastname: new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
+    email: new RegExp(/^([\S]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/),
+    username: new RegExp(/^[a-zA-Z0-9\-_!?+#$%&*]{4,30}$/),
+    password: new RegExp(/^[\S]{7,35}$/)
+}
+
+exportsObj.validate = (inputs) => {
+    for (var input in inputs){
+        if ((input === "username" && inputs[input] === "") === false){
+            if (validation[input].test(inputs[input]) === false) return false;
+        }
+    }
+    return true;
+}
+
+exportsObj.format = (inputs) => {
+    var reformattedBody = inputs;
+    var firstname = reformattedBody.firstname.trim().toLowerCase();
+    var lastname = reformattedBody.lastname.trim().toLowerCase();
+    reformattedBody.firstname = firstname.charAt(0).toUpperCase() + firstname.slice(1);
+    reformattedBody.lastname = lastname.charAt(0).toUpperCase() + lastname.slice(1);
+    reformattedBody.email = reformattedBody.email.trim();
+    if (reformattedBody.username === "") reformattedBody.username = null;
+
+    return reformattedBody;
+}
+
+exportsObj.registerUser = (reformattedBody, req, res, callback) => {
     // DynamoDB query params
     var queryParams = {
         ExpressionAttributeValues: {
@@ -82,7 +111,7 @@ exportsObj.RegisterUser = function (reformattedBody, req, res, callback){
         }
     });
 };
-exportsObj.CreateDefaultBoards = function (req){
+exportsObj.CreateDefaultBoards = (req) => {
     var defaultBoard = {
         UserId: req.session.user.uuid,
         UUID: uuid.v1(),
@@ -156,7 +185,7 @@ exportsObj.CreateDefaultBoards = function (req){
     WriteItem.send();
 }
 
-exportsObj.CreateDefaultFilter = function(req){
+exportsObj.CreateDefaultFilter = (req) => {
 
     var defaultFilter = {
         UserId: req.session.user.uuid,

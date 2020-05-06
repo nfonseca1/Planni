@@ -2,11 +2,13 @@
   "name": "planni",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "aws-sdk": "^2.668.0",
+    "axios": "^0.19.2",
     "bcrypt": "^4.0.1",
     "connect-memcached": "^1.0.0",
     "cors": "^2.8.5",
@@ -15,6 +17,7 @@
     "express-session": "^1.17.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "uuid": "^8.0.0"
   },
@@ -22,7 +25,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node server.js"
   },
   "eslintConfig": {
     "extends": "react-app"
