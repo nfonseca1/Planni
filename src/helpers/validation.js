@@ -12,7 +12,7 @@ var validation = {
         else return "Name cannot consist of numbers or special characters";
     },
     email: () => {
-        if ((new RegExp(/^([\S]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/)).test(inputs.email)) return "";
+        if ((new RegExp(/^([\S]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/)).test(inputs.email)) return "";
         if (inputs.email.length === 0) return "Email is required";
         else return "Email is not properly formatted";
     },
@@ -36,7 +36,6 @@ var validation = {
 }
 
 function validateAll(fields){
-    console.log(fields);
     var obj = {};
     for (var i in validation){
         inputs[i] = fields[i];
