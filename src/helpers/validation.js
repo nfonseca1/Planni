@@ -44,11 +44,4 @@ function validateAll(fields){
     return obj;
 }
 
-function validate(input){
-    if (validation[input.name].regex.test(input.value) === false){
-        return validation[input.name].validate(input.value);
-    }
-    else return "";
-}
-
 export default validateAll;

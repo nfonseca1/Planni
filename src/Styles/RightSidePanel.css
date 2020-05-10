@@ -1,0 +1,14 @@
+.RightSidePanel {
+    position: absolute;
+    width: 19%;
+    height: 80%;
+    left: 79%;
+    bottom: 5%;
+    background-color: #f0f0f0;
+    border-top: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #d0d0d0;
+    border-left: 1px solid #d0d0d0;
+    box-shadow: -10px 10px 5px 0px rgba(0,0,0,0.5);
+    border-radius: 6px;
+}

@@ -47,12 +47,13 @@ var middleware = function(req, res, next){
     else next();
 };
 
+
 app.get("/", function(req, res){
 	res.render("login.ejs", {loginMsg: "", errorMsg: ""});
 });
 
 // Registering
-app.post("/register", function(req, res){
+app.post("/register", function(req, res){ 
     //Server side validation. If failed, return error message
     if (Registration.validate(req.body.data) === false) {
         res.send({error: "One or more input fields were not properly filled in"});
@@ -71,14 +72,14 @@ app.post("/register", function(req, res){
             reformattedBody.password = hash;
             // When password hashes, complete registration process
             Registration.registerUser(reformattedBody, req, res, function(){
-                res.redirect("/home");
+                res.send({success: true});
             })
         }
     })
 });
 
-// Logging In
-app.post("/home", function(req, res){
+// Logging In 
+app.post("/login", function(req, res){
     // DynamoDB query params
     var queryParams = {
         ExpressionAttributeValues: {
@@ -92,7 +93,7 @@ app.post("/home", function(req, res){
         ReturnConsumedCapacity: "TOTAL"
     };
     var emailRegex = new RegExp(/[\S]{1,}@[\S]{1,}/);
-    if (emailRegex.test(req.body.username) == true) { // If logging in with an email, change db parameters
+    if (emailRegex.test(req.body.username) === true) { // If logging in with an email, change db parameters
         queryParams.KeyConditionExpression = "Email = :v1";
         queryParams.IndexName = "Email-index";
     }
@@ -102,16 +103,16 @@ app.post("/home", function(req, res){
     query.on("complete", function(result){
         if (result.error) {
             console.log(result.error);
-            res.send("Server could not retrieve user");
-        } else if (result.data.Items.length == 0){
-            res.render("login.ejs", {loginMsg: "Email/Username and Password combination is incorrect", errorMsg: ""})
+            res.send({error: "Server could not retrieve user"});
+        } else if (result.data.Items.length === 0){
+            res.send({error: "Email/Username and Password combination is incorrect"})
         } else {
             bcrypt.compare(req.body.password, result.data.Items[0].Password.S, function(err, hashResult) { // Check hashed password for match
                 if (err) {
                     console.log(err);
-                    res.send("Error processing data");
-                } else if (hashResult == false) {
-                    res.render("login.ejs", {loginMsg: "Email/Username and Password combination is incorrect", errorMsg: ""})
+                    res.send({error: "Error processing data"});
+                } else if (hashResult === false) {
+                    res.send({error: "Email/Username and Password combination is incorrect"})
                 } else {
                     var getParams = {
                         Key: {
@@ -125,7 +126,6 @@ app.post("/home", function(req, res){
                     getItem.on('complete', function(result){
                         if (result.error) {
                             console.log(result.error);
-                            res.send("Server could not retrieve user");
                         } else {
                             var item = result.data.Item;
                             req.session.user = {
@@ -136,10 +136,10 @@ app.post("/home", function(req, res){
                                 defaultBoardId: item.DefaultBoardId.S,
                                 defaultFilterId: item.DefaultFilterId.S
                             }
-                            res.redirect("/home");
                         }
                     });
                     getItem.send();
+                    res.send({success: true});
                 }
             })
         }

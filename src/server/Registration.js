@@ -2,7 +2,6 @@ var AWS = require("aws-sdk");
 AWS.config = {
     region: "us-east-1"
 };
-
 var dynamoDB = new AWS.DynamoDB();
 var uuid = require("uuid");
 
@@ -11,7 +10,7 @@ var exportsObj = {}
 var validation = {
     firstname: new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
     lastname: new RegExp(/^[\sa-zA-Z.,'-]{2,}$/),
-    email: new RegExp(/^([\S]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/),
+    email: new RegExp(/^([\S]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/),
     username: new RegExp(/^[a-zA-Z0-9\-_!?+#$%&*]{4,30}$/),
     password: new RegExp(/^[\S]{7,35}$/)
 }
@@ -90,7 +89,7 @@ exportsObj.registerUser = (reformattedBody, req, res, callback) => {
             console.log(result.error);
             res.send("Error checking user");
         }
-        else if (result.data.Items.length != 0) { // If the data return a user (obj not empty), re-render and notify
+        else if (result.data.Items.length !== 0) { // If the data return a user (obj not empty), re-render and notify
             res.render("login.ejs", {loginMsg: "", errorMsg: "Account is already associated with email"});
         }
         else putItem.send(); // Send put item request if no email is found
@@ -105,7 +104,7 @@ exportsObj.registerUser = (reformattedBody, req, res, callback) => {
             req.session.user = {
                 uuid: reformattedBody.uuid
             };
-            exportsObj.CreateDefaultBoards(req);
+            //exportsObj.CreateDefaultBoards(req);
             exportsObj.CreateDefaultFilter(req);
             callback();
         }
@@ -233,12 +232,12 @@ exportsObj.CreateDefaultFilter = (req) => {
     };
 
     var putItem = dynamoDB.putItem(putParams);
-    var updateParams = dynamoDB.updateItem(updateParams);
+    var update = dynamoDB.updateItem(updateParams);
     putItem.on("complete", function(result){
         if (result.error) console.log(result.error);
         else {
             req.session.filters = [defaultFilter];
-            updateParams.send();
+            update.send();
         }
     })
 

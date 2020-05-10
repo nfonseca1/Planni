@@ -1,6 +1,6 @@
 import React, {Component} from "react";
-import "./Register.css";
-import validateAll from "./helpers/validation";
+import "../Styles/Register.css";
+import validateAll from "../helpers/validation";
 import axios from "axios";
 
 class Register extends Component {
